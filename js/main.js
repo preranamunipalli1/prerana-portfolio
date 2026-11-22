@@ -183,7 +183,22 @@ function buildNotes() {
     notes.push({ el, a });
   });
 }
+// "let's chat?" written in the mug's steam (shows on hover; on touch screens it appears now and then)
+const mugWords = document.createElement("div");
+mugWords.className = "mug-words";
+mugWords.setAttribute("aria-hidden", "true");
+mugWords.innerHTML = `<svg viewBox="0 0 200 80"><path id="mugCurve" d="M10 70 C 50 20, 120 55, 192 14" fill="none"/><text><textPath href="#mugCurve" startOffset="4">let's chat?</textPath></text></svg>`;
+document.getElementById("notes").appendChild(mugWords);
+const MUG_TOP = { x: 8.9, y: 2.2, z: 3.0 };
+let mugAnchor = null;
+if (window.matchMedia("(hover: none)").matches) {
+  setInterval(() => { if (!body.classList.contains("zoomed")) { mugWords.classList.add("show"); setTimeout(() => mugWords.classList.remove("show"), 2600); } }, 7000);
+}
 function positionNotes() {
+  if (scene) {
+    mugAnchor ||= scene.anchors.length ? scene.anchors[0].pos.clone().set(MUG_TOP.x, MUG_TOP.y, MUG_TOP.z) : null;
+    if (mugAnchor) { const p = scene.project(mugAnchor); mugWords.style.transform = `translate3d(${p.x.toFixed(1)}px, ${p.y.toFixed(1)}px, 0)`; }
+  }
   for (const { el, a } of notes) {
     if (a.kind === "key" && scene.isDone(a.region)) { el.classList.add("gone"); continue; }
     const p = scene.project(a.pos);
@@ -198,6 +213,7 @@ function tipText(h) {
   if (!h) return "";
   if (h.kind === "key") { const p = S.pieces[h.region]; return `<b>${p.num}</b> ${V.esc(p.title)} <i>click to place</i>`; }
   if (h.kind === "region") { const p = S.pieces[h.region]; return `<b>${p.num}</b> ${V.esc(p.title)}`; }
+  if (h.kind === "object" && h.id === "coffee") return ""; // the steam says it instead
   if (h.kind === "object" && !notes.some((n) => n.a.id === h.id)) return V.esc(S.objectTeasers[h.id] || "");
   return "";
 }
@@ -205,6 +221,7 @@ function onHover(h) {
   const t = body.classList.contains("zoomed") ? "" : tipText(h);
   tip.hidden = !t;
   if (t) { tip.innerHTML = t; tip.style.transform = `translate(${mouse[0]}px, ${mouse[1]}px)`; }
+  mugWords.classList.toggle("show", !!h && h.kind === "object" && h.id === "coffee" && !body.classList.contains("zoomed"));
   notes.forEach(({ el, a }) => el.classList.toggle("hover", !!h && ((a.kind === "key" && h.kind === "key" && a.region === h.region) || (a.kind === "object" && h.kind === "object" && a.id === h.id))));
 }
 

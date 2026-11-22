@@ -104,6 +104,12 @@ body.zoomed #notes .tnote { pointer-events: none; }
 .tip b { font-family: var(--hand); font-size: 17px; margin-right: 4px; }
 .tip i { font-family: var(--hand); font-style: normal; font-size: 16px; color: var(--ink-soft); margin-left: 6px; }
 
+.mug-words { position: absolute; left: 0; top: 0; width: 190px; pointer-events: none; will-change: transform; }
+.mug-words svg { display: block; width: 100%; translate: -18% -96%; overflow: visible; }
+.mug-words text { font-family: var(--hand); font-size: 34px; font-weight: 700; fill: var(--paper); stroke: var(--ink); stroke-width: 1px; paint-order: stroke; opacity: 0; filter: blur(6px); transform: translateY(16px); transition: opacity .6s var(--ease), filter .6s var(--ease), transform .7s var(--ease); }
+.mug-words.show text { opacity: 1; filter: blur(0); transform: none; }
+body.night .mug-words text { fill: #FFE3A8; }
+
 /* ---------- bottom nav ---------- */
 .hint { position: fixed; z-index: 12; left: 50%; bottom: 74px; translate: -50% 0; margin: 0; padding: 6px 16px; border-radius: 999px; background: var(--ui-bg); color: var(--ui-fg); font-size: 21px; white-space: nowrap; backdrop-filter: blur(6px); opacity: 0; transition: opacity .6s; }
 .hint[hidden] { display: none; }
