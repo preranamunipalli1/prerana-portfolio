@@ -1,0 +1,31 @@
+# ---- Secrets & environment ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+credentials*.json
+
+# ---- Private working files (never published) ----
+# Put anything personal you DON'T want online in /private
+private/
+*.private.*
+drafts/
+# Raw resume sources (export a public PDF to assets/ instead)
+*.docx
+*.pages
+
+# ---- Tooling ----
+node_modules/
+.vercel/
+.claude/settings.local.json
+dist/
+.cache/
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log

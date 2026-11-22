@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prerana Munipalli — Connecting the Dots</title>
+  <meta name="description" content="Prerana Munipalli — strategy, analytics and AI. Connecting the dots from data to decisions." />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=DM+Sans:opsz,wght@9..40,400..700&family=Caveat:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="paper" aria-hidden="true"></div>
+
+  <header class="topbar" id="topbar">
+    <a href="#board" class="brand" aria-label="Back to the puzzle board">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span class="brand-name">Prerana Munipalli</span>
+    </a>
+    <div class="progress" id="progress" title="Sections explored"></div>
+  </header>
+
+  <main id="view" tabindex="-1"></main>
+
+  <div class="modal" id="modal" hidden>
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="modal-close" data-close aria-label="Close">×</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="js/content.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
