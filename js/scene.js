@@ -163,7 +163,7 @@ export async function createScene(canvas, opts) {
   }
 
   // per region: one key piece (loose on the table) + some missing pieces (in the box)
-  const BOX_POS = new THREE.Vector3(10.6, 0.9, -3.6);
+  const BOX_POS = new THREE.Vector3(2.9, 0.9, -8.6);
   const keys = [];
   const KEY_SPOTS = [[-4.6, -6.1], [0.2, -6.3], [4.6, -6.1], [-4.4, 6.1], [0.1, 6.3], [4.5, 6.1]];
   regionPieces.forEach((list, i) => {
@@ -209,6 +209,7 @@ export async function createScene(canvas, opts) {
   // napkin with a coffee ring
   const napkin = prop("napkin", 8.2, 6.9, -0.22);
   flat(2.4, 2.4, canvasTex(TX.drawNapkin()), napkin, [0, 0.012, 0]);
+  napkin.userData.kind = "decor";
 
   // laptop
   const laptop = prop("laptop", -10.4, -3.0, 0.42);
@@ -242,7 +243,7 @@ export async function createScene(canvas, opts) {
   const lampGlow = new THREE.PointLight("#FFB866", 0, 9, 1.5); lampGlow.position.copy(headWorld).add(new THREE.Vector3(0, -0.8, 0)); scene.add(lampGlow);
 
   // puzzle box lid (with the finished picture)
-  const box = prop("box", 10.6, -3.6, -0.22);
+  const box = prop("box", 2.9, -8.6, 0.08);
   const lidTex = canvasTex(TX.drawBoxLid(picCanvas));
   const boxSide = mat(TX.P.ink);
   part(new THREE.BoxGeometry(4.2, 0.5, 2.95), [boxSide, boxSide, new THREE.MeshLambertMaterial({ map: lidTex }), boxSide, boxSide, boxSide], box, [0, 0.25, 0]);
@@ -261,6 +262,7 @@ export async function createScene(canvas, opts) {
 
   // stack of books
   const books = prop("books", -10.3, 3.5, 0.1);
+  books.userData.kind = "decor";
   [[2.7, 0.45, 1.95, TX.P.sage, 0], [2.45, 0.4, 1.8, TX.P.pink, 0.14], [2.25, 0.38, 1.7, TX.P.blue, -0.1]].reduce((y, [w, h, d, col, ry]) => {
     part(new THREE.BoxGeometry(w, h, d), mat(col), books, [0, y + h / 2, 0], [0, ry, 0]);
     part(new THREE.BoxGeometry(w - 0.12, h - 0.1, d + 0.02), mat(TX.P.paper), books, [0.08, y + h / 2, 0], [0, ry, 0], false);
@@ -287,11 +289,12 @@ export async function createScene(canvas, opts) {
 
   // headphones
   const phones = prop("music", -10.6, 7.6, -0.4);
+  phones.userData.kind = "decor";
   part(new THREE.TorusGeometry(0.95, 0.09, 10, 32, Math.PI), mat(TX.P.ink), phones, [0, 0.1, 0], [-Math.PI / 2, 0, 0]);
   [-0.95, 0.95].forEach((x) => part(new THREE.CylinderGeometry(0.46, 0.46, 0.32, 24), mat(TX.P.terracotta), phones, [x, 0.16, 0]));
 
   // resume: a sheet of paper at the top of the table (click to download)
-  const resume = prop("resume", -1.6, -8.7, 0.08);
+  const resume = prop("resume", 10.5, -1.4, -0.18);
   const paperTop = new THREE.MeshLambertMaterial({ map: canvasTex(TX.drawResume()) });
   const paperSide = mat("#FFFFFF");
   part(new THREE.BoxGeometry(2.3, 0.03, 3.0), [paperSide, paperSide, paperTop, paperSide, paperSide, paperSide], resume, [0.12, 0.015, 0.1], [0, 0.06, 0], false);
@@ -300,7 +303,7 @@ export async function createScene(canvas, opts) {
 
   /* ---------- anchors for the HTML sticky notes ---------- */
   const anchors = [];
-  const objAnchor = { resume: [-1.6, 0.2, -9.9], coffee: [8.9, 1.9, 3.0], napkin: [8.2, 0.2, 6.9], sorter: [10.9, 0.5, 7.4], books: [-10.3, 1.4, 3.5], sudoku: [-7.3, 0.2, 7.4], music: [-10.6, 0.5, 7.6] };
+  const objAnchor = { resume: [10.5, 0.2, -2.7], sorter: [10.9, 0.5, 7.4], sudoku: [-7.3, 0.2, 7.4] };
   Object.entries(objAnchor).forEach(([id, p]) => anchors.push({ kind: "object", id, pos: new THREE.Vector3(...p) }));
 
   /* ---------- tweens ---------- */

@@ -224,11 +224,15 @@ window.SITE = {
      Each object on the table has a sticky-note clue (teaser). Clicking it opens a small card.
      These are DEMO hobbies — replace with your own. [EDIT] */
   hobbies: [
-    { id: "sorter",   teaser: "Edges first. Always.",           title: "The puzzle habit",   body: ["I sort edge pieces before anything else. It turns out that's how I approach messy problems at work, too.", "Current puzzle: [EDIT]"] },
-    { id: "books",    teaser: "Currently reading…",              title: "On my nightstand",   body: ["Book title — author [EDIT]", "Last great read: [EDIT]"] },
-    { id: "sudoku",   teaser: "Pen, not pencil.",                title: "Logic puzzles",      body: ["Sudoku, crosswords, anything with a satisfying 'click' at the end. [EDIT]"] },
-    { id: "napkin",   teaser: "The ring stays. It's a feature.", title: "Café hopping",       body: ["Favourite café so far: [EDIT]", "Still looking for the perfect cortado. Recommendations welcome."] },
-    { id: "music",    teaser: "On repeat while I work.",         title: "Focus playlist",     body: ["What's playing right now: [EDIT]"] },
+    { id: "sorter", teaser: "Edges first. Always.", title: "The puzzle habit", body: ["I sort edge pieces before anything else. It turns out that's how I approach messy problems at work, too.", "Current puzzle: [EDIT]"] },
+    // The sudoku on the table is the "hobbies" spot — edit the list below [EDIT]
+    { id: "sudoku", teaser: "My hobbies ✎", title: "Things I do for fun", body: ["A few things that keep my brain happy:"], list: [
+      "Jigsaw puzzles: edges first, always",
+      "Sudoku & crosswords (pen, not pencil)",
+      "Reading. Currently: [EDIT]",
+      "Café hopping, still hunting for the perfect cortado [EDIT]",
+      "[EDIT: add your own]",
+    ] },
   ],
   // Sticky note on the mug + resume sheet, and hover labels for the lamp, laptop and box
   objectTeasers: {

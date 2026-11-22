@@ -196,7 +196,7 @@ export function renderHighlights() {
 export function renderHobby(id) {
   const h = S.hobbies.find((x) => x.id === id);
   if (!h) return "";
-  return `<p class="card-kicker">off the clock</p><h2 id="card-title">${esc(h.title)}</h2>${h.body.map((p) => `<p>${esc(p)}</p>`).join("")}`;
+  return `<p class="card-kicker">off the clock</p><h2 id="card-title">${esc(h.title)}</h2>${h.body.map((p) => `<p>${esc(p)}</p>`).join("")}${h.list ? `<ul class="hobby-list">${h.list.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}`;
 }
 export function renderCoffee() {
   const c = S.coffee;
