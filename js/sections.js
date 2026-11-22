@@ -196,7 +196,13 @@ export function renderHighlights() {
 export function renderHobby(id) {
   const h = S.hobbies.find((x) => x.id === id);
   if (!h) return "";
-  return `<p class="card-kicker">off the clock</p><h2 id="card-title">${esc(h.title)}</h2>${h.body.map((p) => `<p>${esc(p)}</p>`).join("")}${h.list ? `<ul class="hobby-list">${h.list.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}`;
+  // shown as a page torn from a spiral notebook (see .card[data-kind="hobby"] in styles.css)
+  const doodles = `<svg class="nb-doodle nb-piece" viewBox="0 0 48 48" aria-hidden="true"><path d="M9 9h10c-1-6 11-6 10 0h10v10c6-1 6 11 0 10v10H29c1 6-11 6-10 0H9V29c-6 1-6-11 0-10z"/></svg>
+    <svg class="nb-doodle nb-star" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 6l5 12 13 1-10 8 4 13-12-7-12 7 4-13-10-8 13-1z"/></svg>
+    <svg class="nb-doodle nb-cup" viewBox="0 0 48 48" aria-hidden="true"><path d="M9 18h25v11c0 7-5 12-12.5 12S9 36 9 29z"/><path d="M34 21h3.5c2.5 0 4 2 4 4.5S39.5 30 37 30h-3"/><path d="M16 12c0-2 2-2 2-4M22 12c0-2 2-2 2-4M28 12c0-2 2-2 2-4"/></svg>`;
+  return `<div class="nb-rings" aria-hidden="true"></div>${doodles}
+    <p class="card-kicker">off the clock</p><h2 id="card-title">${esc(h.title)}</h2>
+    <div class="nb-lines">${h.body.map((p) => `<p>${esc(p)}</p>`).join("")}${h.list ? `<ul class="hobby-list">${h.list.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}</div>`;
 }
 export function renderCoffee() {
   const c = S.coffee;

@@ -271,7 +271,23 @@ body.night .nav-chip:hover { background: rgba(255,255,255,.08); }
 .card-inner { position: relative; width: min(480px, 100%); max-height: 88vh; overflow: auto; background: var(--paper); color: var(--ink); border: 1.5px solid var(--ink); border-radius: 18px; padding: 30px 30px 28px; box-shadow: var(--shadow); opacity: 0; transform: translateY(18px) rotate(-1deg) scale(.97); transition: transform .45s var(--ease), opacity .3s; }
 .card.open .card-backdrop { opacity: 1; }
 .card.open .card-inner { opacity: 1; transform: none; }
-.card[data-kind="hobby"] .card-inner { background: var(--sticky); border-radius: 4px; rotate: -.8deg; }
+/* hobbies: a page from a spiral notebook */
+.card[data-kind="hobby"] .card-inner {
+  overflow: visible; border-radius: 6px; rotate: -1deg; padding: 34px 30px 30px 66px;
+  background: #FFFDF6 linear-gradient(90deg, transparent 47px, rgba(201,120,91,.55) 47px 49px, transparent 49px);
+  box-shadow: 0 2px 0 rgba(46,38,33,.08), 0 22px 40px -18px rgba(46,38,33,.55);
+}
+.card[data-kind="hobby"] .card-close { background: #FFFDF6; }
+.nb-rings { position: absolute; top: -13px; left: 26px; right: 26px; height: 26px; background: radial-gradient(circle at 50% 50%, var(--cream) 0 5px, var(--ink) 5.5px 7.5px, transparent 8px) 0 0 / 34px 26px space no-repeat; pointer-events: none; }
+.nb-lines { background: repeating-linear-gradient(transparent 0 33px, rgba(126,155,181,.4) 33px 34px); background-position: 0 -2px; }
+.nb-lines p { margin: 0; line-height: 34px; font-size: 15.5px; }
+.card[data-kind="hobby"] .hobby-list { margin: 0; }
+.card[data-kind="hobby"] .hobby-list li { border: 0; padding: 0 0 0 28px; line-height: 34px; font-size: 25px; }
+.card[data-kind="hobby"] .hobby-list li::before { top: 0; }
+.nb-doodle { position: absolute; fill: none; stroke: rgba(46,38,33,.45); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.nb-piece { width: 34px; left: 8px; top: 92px; rotate: -12deg; }
+.nb-star { width: 24px; left: 13px; bottom: 70px; rotate: 10deg; }
+.nb-cup { width: 34px; right: 22px; bottom: 16px; rotate: 6deg; }
 .card[data-kind="coffee"] .card-inner, .card[data-kind="box"] .card-inner, .card[data-kind="complete"] .card-inner { width: min(560px, 100%); }
 .card-close { position: absolute; right: 12px; top: 12px; width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--cream); font-size: 20px; line-height: 1; cursor: pointer; }
 .card-kicker { font-family: var(--hand); font-size: 22px; color: var(--ink-soft); margin: 0 0 4px; }
