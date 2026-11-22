@@ -4,35 +4,81 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Prerana Munipalli — Connecting the Dots</title>
-  <meta name="description" content="Prerana Munipalli — strategy, analytics and AI. Connecting the dots from data to decisions." />
+  <meta name="description" content="Prerana Munipalli: strategy, analytics and AI. An interactive puzzle-table portfolio. From data to decisions." />
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=DM+Sans:opsz,wght@9..40,400..700&family=Caveat:wght@500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..600&family=DM+Sans:opsz,wght@9..40,400..700&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+  </script>
 </head>
 <body>
-  <div class="paper" aria-hidden="true"></div>
+  <canvas id="scene" aria-label="A 3D puzzle table. Use the section menu at the bottom, or click the loose puzzle pieces."></canvas>
+  <div id="notes" aria-label="Things on the table"></div>
 
-  <header class="topbar" id="topbar">
-    <a href="#board" class="brand" aria-label="Back to the puzzle board">
-      <span class="brand-mark" aria-hidden="true"></span>
-      <span class="brand-name">Prerana Munipalli</span>
-    </a>
-    <div class="progress" id="progress" title="Sections explored"></div>
+  <!-- loader -->
+  <div id="loader" role="status">
+    <div class="loader-pieces" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <p id="loaderText">Sorting the edge pieces first…</p>
+  </div>
+
+  <!-- top bar -->
+  <header class="topbar">
+    <a href="#table" class="brand" aria-label="Back to the puzzle table"><span class="brand-mark" aria-hidden="true"></span><span class="brand-name">Prerana Munipalli</span></a>
+    <div class="top-right">
+      <div class="progress" id="progress" aria-live="polite"></div>
+      <button type="button" class="icon-btn" id="nightBtn" aria-pressed="false" title="Switch on the desk lamp" aria-label="Toggle night mode">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h9M8.5 21v-3l4-7"/><path d="M12.5 11l3.5-2"/><path d="M14.5 3.5l6 3.5-2.2 3.8a3.5 3.5 0 01-6-3.5z"/></svg>
+      </button>
+      <button type="button" class="icon-btn" id="soundBtn" aria-pressed="false" title="Sound off" aria-label="Toggle sound">
+        <svg class="snd-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>
+        <svg class="snd-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 8.5a5 5 0 010 7M19.5 6a8.5 8.5 0 010 12"/></svg>
+      </button>
+      <a href="#highlights" class="hl-btn"><span class="hl-dot" aria-hidden="true"></span>Just the highlights</a>
+    </div>
   </header>
 
-  <main id="view" tabindex="-1"></main>
+  <!-- hero text over the table -->
+  <div class="intro-copy">
+    <h1>Curious about business, fascinated by data, and excited about what AI can build.</h1>
+    <p class="hand">Every problem has pieces. I like figuring out how they fit.</p>
+  </div>
 
-  <div class="modal" id="modal" hidden>
-    <div class="modal-backdrop" data-close></div>
-    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-      <button class="modal-close" data-close aria-label="Close">×</button>
-      <div id="modal-body"></div>
+  <!-- bottom: hint + section menu -->
+  <p id="hint" class="hint hand">Piece by piece, explore my world. Click a glowing loose piece to begin ✦</p>
+  <nav class="bottom-nav" aria-label="Sections">
+    <div id="nav" class="nav-chips"></div>
+    <button type="button" id="reset" class="reset" title="Scatter the pieces and start over">↺ scramble</button>
+  </nav>
+
+  <!-- section panel -->
+  <aside id="panel" class="panel" aria-hidden="true" aria-labelledby="panel-title">
+    <button type="button" id="panelClose" class="panel-close"><span aria-hidden="true">←</span> Back to the table</button>
+    <div id="panelBody" class="panel-body"></div>
+  </aside>
+
+  <!-- small cards -->
+  <div id="card" class="card" hidden>
+    <div class="card-backdrop" data-close></div>
+    <div class="card-inner" role="dialog" aria-modal="true" aria-labelledby="card-title">
+      <button type="button" id="cardClose" class="card-close" data-close aria-label="Close">×</button>
+      <div id="cardBody"></div>
     </div>
   </div>
 
+  <!-- just the highlights -->
+  <section id="highlights" class="highlights" hidden aria-label="Just the highlights">
+    <div class="hl-bar">
+      <span class="hand">the 30-second version</span>
+      <button type="button" id="hlClose" class="panel-close">← Back to the puzzle</button>
+    </div>
+    <p id="hlNotice" class="hl-notice" hidden></p>
+    <div id="hlBody"></div>
+  </section>
+
   <script src="js/content.js"></script>
-  <script src="js/app.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>

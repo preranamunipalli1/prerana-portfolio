@@ -220,6 +220,43 @@ window.SITE = {
     ],
   },
 
+  /* ---------- TABLE OBJECTS ----------
+     Each object on the table has a sticky-note clue (teaser). Clicking it opens a small card.
+     These are DEMO hobbies — replace with your own. [EDIT] */
+  hobbies: [
+    { id: "sorter",   teaser: "Edges first. Always.",           title: "The puzzle habit",   body: ["I sort edge pieces before anything else. It turns out that's how I approach messy problems at work, too.", "Current puzzle: [EDIT]"] },
+    { id: "books",    teaser: "Currently reading…",              title: "On my nightstand",   body: ["Book title — author [EDIT]", "Last great read: [EDIT]"] },
+    { id: "sudoku",   teaser: "Pen, not pencil.",                title: "Logic puzzles",      body: ["Sudoku, crosswords, anything with a satisfying 'click' at the end. [EDIT]"] },
+    { id: "napkin",   teaser: "The ring stays. It's a feature.", title: "Café hopping",       body: ["Favourite café so far: [EDIT]", "Still looking for the perfect cortado. Recommendations welcome."] },
+    { id: "notebook", teaser: "Ideas I haven't built yet.",      title: "The ideas notebook", body: ["A running list of things I'd like to build someday. [EDIT: add 2–3 ideas]"] },
+    { id: "music",    teaser: "On repeat while I work.",         title: "Focus playlist",     body: ["What's playing right now: [EDIT]"] },
+  ],
+  objectTeasers: {
+    coffee: "Let's talk over coffee ☕",
+    laptop: "The 30-second version",
+    lamp: "Too bright? Click me.",
+    box: "The picture on the box",
+  },
+
+  /* The mug on the table opens this card */
+  coffee: {
+    kicker: "let's grab a coffee",
+    title: "Discuss more over coffee?",
+    text: "Whether it's a role, a problem you're working through, or just AI and puzzles, I'm always happy to chat. Virtual coffee counts.",
+    calendar: "", // [EDIT] optional: a Calendly / Google booking link
+  },
+
+  /* "Just the highlights" — the one-page version for busy recruiters */
+  highlights: {
+    summary: "Strategy and analytics professional who turns ambiguous business problems into data-backed decisions: FP&A and BI at a high-growth startup, GenAI strategy for a global bank, and a Master's in Quantitative Management from Duke Fuqua. [EDIT]",
+    lookingFor: ["Strategy & Planning", "Strategy & Operations", "Business Strategy", "Business Operations", "Consulting"],
+    interests: ["Business strategy", "Financial planning & performance", "Product strategy", "Generative AI", "Analytics"],
+  },
+
+  /* Puzzle picture: leave "" for the illustrated placeholder, or set an image path
+     like "assets/images/puzzle.jpg" (landscape, roughly 3:2). */
+  puzzleImage: "",
+
   /* ---------- 06 · CONNECT ---------- */
   connect: {
     title: "Let's connect the dots.",
