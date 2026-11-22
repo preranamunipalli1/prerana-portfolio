@@ -119,7 +119,14 @@ card.addEventListener("click", (e) => {
   if (e.target.closest('a[href^="#"]')) closeCard();
 });
 
+function downloadResume() {
+  const r = S.connect.links.find((l) => l.label === "Resume");
+  const a = document.createElement("a");
+  a.href = r ? r.href : "assets/resume.pdf"; a.download = ""; a.target = "_blank"; a.rel = "noopener";
+  document.body.appendChild(a); a.click(); a.remove();
+}
 function handleObject(id) {
+  if (id === "resume") return downloadResume();
   if (id === "coffee") return openCard(V.renderCoffee(), "coffee");
   if (id === "laptop") return (location.hash = "highlights");
   if (id === "lamp") return toggleNight();
@@ -184,7 +191,20 @@ function positionNotes() {
     el.classList.toggle("off", !p.visible);
   }
 }
+const tip = $("#tip");
+let mouse = [0, 0];
+window.addEventListener("pointermove", (e) => { mouse = [e.clientX, e.clientY]; if (!tip.hidden) tip.style.transform = `translate(${mouse[0]}px, ${mouse[1]}px)`; });
+function tipText(h) {
+  if (!h) return "";
+  if (h.kind === "key") { const p = S.pieces[h.region]; return `<b>${p.num}</b> ${V.esc(p.title)} <i>click to place</i>`; }
+  if (h.kind === "region") { const p = S.pieces[h.region]; return `<b>${p.num}</b> ${V.esc(p.title)}`; }
+  if (h.kind === "object" && !notes.some((n) => n.a.id === h.id)) return V.esc(S.objectTeasers[h.id] || "");
+  return "";
+}
 function onHover(h) {
+  const t = body.classList.contains("zoomed") ? "" : tipText(h);
+  tip.hidden = !t;
+  if (t) { tip.innerHTML = t; tip.style.transform = `translate(${mouse[0]}px, ${mouse[1]}px)`; }
   notes.forEach(({ el, a }) => el.classList.toggle("hover", !!h && ((a.kind === "key" && h.kind === "key" && a.region === h.region) || (a.kind === "object" && h.kind === "object" && a.id === h.id))));
 }
 
@@ -216,7 +236,7 @@ async function boot() {
     scene = await createScene($("#scene"), {
       pieces: S.pieces, done: new Set(done), pictureImage: img,
       hooks: {
-        onPick: (h) => (h.kind === "object" ? handleObject(h.id) : (location.hash = S.pieces[h.region].id)),
+        onPick: (h) => { tip.hidden = true; h.kind === "object" ? handleObject(h.id) : (location.hash = S.pieces[h.region].id); },
         onSnap: () => Sound.click(),
         onTick: () => Sound.click(0.12),
         onHover, onFrame: positionNotes,

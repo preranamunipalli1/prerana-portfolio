@@ -98,6 +98,12 @@ body.zoomed #notes .tnote { pointer-events: none; }
 .nk-hint { display: none; font-family: var(--hand); font-size: 15px; line-height: 1; color: var(--ink-soft); }
 .note-key:hover .nk-hint, .note-key.hover .nk-hint { display: block; }
 
+.note-resume { background: #fff; color: var(--terracotta); font-weight: 600; font-size: 21px; border: 1.5px solid var(--ink); }
+.tip { position: fixed; z-index: 15; left: 0; top: 0; pointer-events: none; margin: 18px 0 0 14px; padding: 6px 12px; border-radius: 10px; background: var(--paper); color: var(--ink); border: 1.5px solid var(--ink); box-shadow: var(--shadow); font-size: 14px; white-space: nowrap; }
+.tip[hidden] { display: none; }
+.tip b { font-family: var(--hand); font-size: 17px; margin-right: 4px; }
+.tip i { font-family: var(--hand); font-style: normal; font-size: 16px; color: var(--ink-soft); margin-left: 6px; }
+
 /* ---------- bottom nav ---------- */
 .hint { position: fixed; z-index: 12; left: 50%; bottom: 74px; translate: -50% 0; margin: 0; padding: 6px 16px; border-radius: 999px; background: var(--ui-bg); color: var(--ui-fg); font-size: 21px; white-space: nowrap; backdrop-filter: blur(6px); opacity: 0; transition: opacity .6s; }
 .hint[hidden] { display: none; }

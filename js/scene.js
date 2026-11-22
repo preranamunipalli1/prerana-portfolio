@@ -2,14 +2,15 @@
 import * as THREE from "three";
 import * as TX from "./textures.js";
 
-const COLS = 12, ROWS = 8;           // puzzle pieces (each 1×1 world unit)
-const RW = 4, RH = 4;                // one region = 4×4 pieces → 3×2 regions
+const COLS = 12, ROWS = 9;           // puzzle pieces (each 1×1 world unit)
+const RW = 4, RH = 3;                // one "thought" region = 4×3 pieces → 3×2 regions
+const GIRL_ROWS = 3;                 // bottom band (rows 0–2) = the girl at her desk, already assembled
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 const easeOut = (t) => 1 - Math.pow(1 - t, 3);
 const lerp = (a, b, t) => a + (b - a) * t;
 
-// Which section each region holds (reading order: back row L→R, then front row)
-const regionOf = (c, r) => (r >= RH ? 0 : 1) * 3 + Math.floor(c / RW);
+// Which section each piece belongs to (-1 = the girl). Reading order: top row of thoughts L→R, then middle row.
+const regionOf = (c, r) => (r < GIRL_ROWS ? -1 : (r >= GIRL_ROWS + RH ? 0 : 1) * 3 + Math.floor(c / RW));
 
 export async function createScene(canvas, opts) {
   const { pieces: sections, done: doneSet, hooks, pictureImage } = opts;
@@ -140,6 +141,7 @@ export async function createScene(canvas, opts) {
   const regionMats = sections.map((_, i) => new THREE.MeshLambertMaterial({ map: picTex, color: doneSet.has(i) ? 0xffffff : MUTED.getHex() }));
   const sideMat = mat("#D8BE98");
   const keyMat = new THREE.MeshLambertMaterial({ map: picTex });
+  const girlMat = new THREE.MeshLambertMaterial({ map: picTex });
   const pieceInk = new THREE.LineBasicMaterial({ color: "#2E2621", transparent: true, opacity: 0.35 });
 
   const rnd = TX.rng(7);
@@ -149,26 +151,28 @@ export async function createScene(canvas, opts) {
     const region = regionOf(c, r);
     const geo = new THREE.ExtrudeGeometry(pieceShape(c, r), { depth: 0.09, bevelEnabled: true, bevelThickness: 0.015, bevelSize: 0.012, bevelOffset: -0.02, bevelSegments: 1, curveSegments: 6 });
     geo.translate(-(c + 0.5), -(r + 0.5), 0);
-    const mesh = new THREE.Mesh(geo, [regionMats[region], sideMat]);
+    const mesh = new THREE.Mesh(geo, [region < 0 ? girlMat : regionMats[region], sideMat]);
     mesh.castShadow = true; mesh.receiveShadow = true;
     mesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 40), pieceInk));
     const slot = new THREE.Vector3(c + 0.5 - COLS / 2, r + 0.5 - ROWS / 2, 0);
     mesh.position.copy(slot);
-    mesh.userData = { kind: "region", region };
+    mesh.userData = region < 0 ? { kind: "girl" } : { kind: "region", region };
     board.add(mesh);
     const p = { c, r, region, mesh, slot, state: "placed" };
-    pieces.push(p); regionPieces[region].push(p);
+    pieces.push(p); if (region >= 0) regionPieces[region].push(p);
   }
 
   // per region: one key piece (loose on the table) + some missing pieces (in the box)
   const BOX_POS = new THREE.Vector3(10.6, 0.9, -3.6);
   const keys = [];
-  const KEY_SPOTS = [[-5.0, -5.5], [0.2, -5.8], [5.0, -5.5], [-5.0, 5.5], [0.1, 5.7], [5.1, 5.5]];
+  const KEY_SPOTS = [[-4.6, -6.1], [0.2, -6.3], [4.6, -6.1], [-4.4, 6.1], [0.1, 6.3], [4.5, 6.1]];
   regionPieces.forEach((list, i) => {
-    const interior = list.filter((p) => p.c % RW >= 1 && p.c % RW <= 2 && p.r % RH >= 1 && p.r % RH <= 2);
+    const interior = list.filter((p) => p.c % RW >= 1 && p.c % RW <= 2 && (p.r - GIRL_ROWS) % RH === 1);
     const key = interior[Math.floor(rnd() * interior.length)];
     key.state = "key";
-    list.forEach((p) => { if (p !== key && rnd() < 0.5) p.state = "missing"; });
+    // 5 more pieces of this thought start in the box and fly in with the key piece
+    const others = list.filter((p) => p !== key).sort(() => rnd() - 0.5);
+    others.slice(0, 5).forEach((p) => (p.state = "missing"));
     if (doneSet.has(i)) { list.forEach((p) => (p.state = "placed")); return; }
     list.forEach((p) => { if (p.state === "missing") p.mesh.visible = false; });
     // move the key piece out onto the table
@@ -203,7 +207,7 @@ export async function createScene(canvas, opts) {
   const steam = [0, 1, 2].map((k) => { const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: steamTex, transparent: true, opacity: 0, depthWrite: false })); s.userData.k = k; mug.add(s); return s; });
 
   // napkin with a coffee ring
-  const napkin = prop("napkin", 8.1, 6.1, -0.22);
+  const napkin = prop("napkin", 8.2, 6.9, -0.22);
   flat(2.4, 2.4, canvasTex(TX.drawNapkin()), napkin, [0, 0.012, 0]);
 
   // laptop
@@ -216,7 +220,7 @@ export async function createScene(canvas, opts) {
   screen.position.set(0, 1.28, 0.056); lid.add(screen);
 
   // desk lamp (+ spotlight)
-  const lamp = prop("lamp", 6.8, -7.4);
+  const lamp = prop("lamp", 7.4, -8.0);
   const lampMat = mat(TX.P.sageDeep);
   part(new THREE.CylinderGeometry(0.9, 1.0, 0.25, 30), lampMat, lamp, [0, 0.125, 0]);
   const j1 = [0, 0.25, 0], j2 = [-0.4, 4.0, 1.0], j3 = [-1.4, 4.6, 2.9];
@@ -244,7 +248,7 @@ export async function createScene(canvas, opts) {
   part(new THREE.BoxGeometry(4.2, 0.5, 2.95), [boxSide, boxSide, new THREE.MeshLambertMaterial({ map: lidTex }), boxSide, boxSide, boxSide], box, [0, 0.25, 0]);
 
   // sorting tray of edge pieces
-  const sorter = prop("sorter", 10.7, 6.7, 0.18);
+  const sorter = prop("sorter", 10.9, 7.4, 0.18);
   part(new THREE.BoxGeometry(3.3, 0.1, 2.3), mat(TX.P.sage), sorter, [0, 0.05, 0]);
   [[0, 1.1, 3.3, 0.1], [0, -1.1, 3.3, 0.1], [1.6, 0, 0.1, 2.3], [-1.6, 0, 0.1, 2.3]].forEach(([x, z, w, d]) => part(new THREE.BoxGeometry(w, 0.32, d), mat(TX.P.sage), sorter, [x, 0.16, z]));
   const miniCols = [TX.P.blue, TX.P.mustard, TX.P.pink, TX.P.terracotta, TX.P.paper, TX.P.sageDeep];
@@ -265,6 +269,7 @@ export async function createScene(canvas, opts) {
 
   // notebook + pencil
   const notebook = prop("notebook", -9.6, 0.5, 0.12);
+  notebook.userData.kind = "decor"; // just says "ideas" for now — not clickable
   const nbTop = new THREE.MeshLambertMaterial({ map: canvasTex(TX.drawNotebook()) });
   const nbSide = mat(TX.P.paper);
   part(new THREE.BoxGeometry(2.4, 0.16, 3.0), [nbSide, nbSide, nbTop, nbSide, nbSide, nbSide], notebook, [0, 0.08, 0]);
@@ -275,20 +280,27 @@ export async function createScene(canvas, opts) {
   part(new THREE.CylinderGeometry(0.085, 0.085, 0.2, 6), mat(TX.P.pink), pencil, [1.2, 0, 0], [0, 0, Math.PI / 2]);
 
   // sudoku + pen
-  const sudoku = prop("sudoku", -6.9, 6.5, 0.14);
+  const sudoku = prop("sudoku", -7.3, 7.4, 0.14);
   flat(2.5, 2.5, canvasTex(TX.drawSudoku()), sudoku, [0, 0.012, 0]);
   const pen = new THREE.Group(); pen.position.set(1.45, 0.08, 0.3); pen.rotation.y = -0.9; sudoku.add(pen);
   part(new THREE.CylinderGeometry(0.07, 0.07, 1.8, 10), mat("#3D5F8C"), pen, [0, 0, 0], [0, 0, Math.PI / 2]);
 
   // headphones
-  const phones = prop("music", -10.4, 7.3, -0.4);
+  const phones = prop("music", -10.6, 7.6, -0.4);
   part(new THREE.TorusGeometry(0.95, 0.09, 10, 32, Math.PI), mat(TX.P.ink), phones, [0, 0.1, 0], [-Math.PI / 2, 0, 0]);
   [-0.95, 0.95].forEach((x) => part(new THREE.CylinderGeometry(0.46, 0.46, 0.32, 24), mat(TX.P.terracotta), phones, [x, 0.16, 0]));
 
+  // resume: a sheet of paper at the top of the table (click to download)
+  const resume = prop("resume", -1.6, -8.7, 0.08);
+  const paperTop = new THREE.MeshLambertMaterial({ map: canvasTex(TX.drawResume()) });
+  const paperSide = mat("#FFFFFF");
+  part(new THREE.BoxGeometry(2.3, 0.03, 3.0), [paperSide, paperSide, paperTop, paperSide, paperSide, paperSide], resume, [0.12, 0.015, 0.1], [0, 0.06, 0], false);
+  part(new THREE.BoxGeometry(2.3, 0.03, 3.0), [paperSide, paperSide, paperTop, paperSide, paperSide, paperSide], resume, [0, 0.05, 0]);
+  part(new THREE.TorusGeometry(0.16, 0.025, 6, 16, Math.PI * 1.5), mat("#9AA3AB"), resume, [-0.8, 0.08, -1.45], [-Math.PI / 2, 0, 0], false);
+
   /* ---------- anchors for the HTML sticky notes ---------- */
   const anchors = [];
-  keys.forEach((k, i) => { if (k) anchors.push({ kind: "key", region: i, pos: board.localToWorld(k.base.clone()).add(new THREE.Vector3(0, 0.3, 0)) }); });
-  const objAnchor = { coffee: [8.9, 1.9, 3.0], napkin: [8.1, 0.2, 6.1], laptop: [-10.6, 2.9, -3.6], lamp: [5.6, 5.4, -4.6], box: [10.6, 0.7, -3.6], sorter: [10.7, 0.5, 6.7], books: [-10.3, 1.4, 3.5], notebook: [-9.6, 0.3, 0.5], sudoku: [-6.9, 0.2, 6.5], music: [-10.4, 0.5, 7.3] };
+  const objAnchor = { resume: [-1.6, 0.2, -9.9], coffee: [8.9, 1.9, 3.0], napkin: [8.2, 0.2, 6.9], sorter: [10.9, 0.5, 7.4], books: [-10.3, 1.4, 3.5], sudoku: [-7.3, 0.2, 7.4], music: [-10.6, 0.5, 7.6] };
   Object.entries(objAnchor).forEach(([id, p]) => anchors.push({ kind: "object", id, pos: new THREE.Vector3(...p) }));
 
   /* ---------- tweens ---------- */
@@ -327,19 +339,20 @@ export async function createScene(canvas, opts) {
   }
   function overviewView() {
     const portrait = camera.aspect < 0.9;
-    const center = new THREE.Vector3(0, 0, portrait ? -1.4 : -1.6); // look a little "behind" the board so the table sits lower on screen
+    const center = new THREE.Vector3(0, 0, portrait ? -1.6 : -1.9); // look a little "behind" the board so the table sits lower on screen
     const d = portrait
-      ? fit([-6.8, 6.8, -6.4, 6.4], center, { x: 0.94, top: 0.55, bottom: 0.72 })
-      : fit([-12.2, 12.2, -8.4, 7.9], center, { x: 0.92, top: 0.62, bottom: 0.76 });
+      ? fit([-6.8, 6.8, -7.0, 7.0], center, { x: 0.94, top: 0.55, bottom: 0.72 })
+      : fit([-12.2, 12.2, -9.6, 8.3], center, { x: 0.92, top: 0.62, bottom: 0.76 });
     return { pos: center.clone().addScaledVector(DIR, d), target: center };
   }
   function regionView(i, panelFrac = 0) {
     const rc = i % 3, rr = Math.floor(i / 3);
-    const center = new THREE.Vector3(rc * RW + RW / 2 - COLS / 2, 0, rr === 0 ? -RH / 2 : RH / 2);
+    const rowStart = rr === 0 ? GIRL_ROWS + RH : GIRL_ROWS;
+    const center = new THREE.Vector3(rc * RW + RW / 2 - COLS / 2, 0, -(rowStart + RH / 2 - ROWS / 2));
     const visibleFrac = 1 - panelFrac;
     tmpCam.fov = camera.fov; tmpCam.aspect = camera.aspect * visibleFrac; // fit into the area left of the panel
     const saveAspect = camera.aspect; camera.aspect = tmpCam.aspect;
-    const d = fit([center.x - 3.1, center.x + 3.1, center.z - 3.0, center.z + 3.0], center, 0.82);
+    const d = fit([center.x - 3.0, center.x + 3.0, center.z - 2.6, center.z + 2.6], center, 0.82);
     camera.aspect = saveAspect;
     const hfov = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect);
     const visW = 2 * d * Math.tan(hfov / 2);
@@ -374,14 +387,14 @@ export async function createScene(canvas, opts) {
     const h = pick(ev);
     const id = h ? (h.kind === "object" ? h.id : `${h.kind}:${h.region}`) : null;
     if (id !== (hovered && hovered.key)) { hovered = h ? { ...h, key: id } : null; hooks.onHover && hooks.onHover(hovered); }
-    canvas.style.cursor = h && api.interactive ? "pointer" : "default";
+    canvas.style.cursor = h && api.interactive && ["key", "region", "object"].includes(h.kind) ? "pointer" : "default";
   });
   let down = null;
   canvas.addEventListener("pointerdown", (ev) => (down = [ev.clientX, ev.clientY]));
   canvas.addEventListener("pointerup", (ev) => {
     if (!down || Math.hypot(ev.clientX - down[0], ev.clientY - down[1]) > 8) return;
     const h = pick(ev);
-    if (h && api.interactive) hooks.onPick(h);
+    if (h && api.interactive && ["key", "region", "object"].includes(h.kind)) hooks.onPick(h);
   });
 
   /* ---------- night mode ---------- */
@@ -463,6 +476,7 @@ export async function createScene(canvas, opts) {
     },
     intro() { return moveCamera(overviewView(), 1.8); },
     isDone: (i) => !keys[i] || keys[i].placed,
+    keyPos(i) { const k = keys[i]; return k && !k.placed ? board.localToWorld(k.piece.mesh.position.clone()) : null; },
     async placeKey(i) {
       const k = keys[i];
       if (!k || k.placed) return;

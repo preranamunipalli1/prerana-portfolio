@@ -228,13 +228,14 @@ window.SITE = {
     { id: "books",    teaser: "Currently reading…",              title: "On my nightstand",   body: ["Book title — author [EDIT]", "Last great read: [EDIT]"] },
     { id: "sudoku",   teaser: "Pen, not pencil.",                title: "Logic puzzles",      body: ["Sudoku, crosswords, anything with a satisfying 'click' at the end. [EDIT]"] },
     { id: "napkin",   teaser: "The ring stays. It's a feature.", title: "Café hopping",       body: ["Favourite café so far: [EDIT]", "Still looking for the perfect cortado. Recommendations welcome."] },
-    { id: "notebook", teaser: "Ideas I haven't built yet.",      title: "The ideas notebook", body: ["A running list of things I'd like to build someday. [EDIT: add 2–3 ideas]"] },
     { id: "music",    teaser: "On repeat while I work.",         title: "Focus playlist",     body: ["What's playing right now: [EDIT]"] },
   ],
+  // Sticky note on the mug + resume sheet, and hover labels for the lamp, laptop and box
   objectTeasers: {
     coffee: "Let's talk over coffee ☕",
-    laptop: "The 30-second version",
-    lamp: "Too bright? Click me.",
+    resume: "Download my resume ↓",
+    laptop: "Just the highlights",
+    lamp: "Desk lamp · night mode",
     box: "The picture on the box",
   },
 

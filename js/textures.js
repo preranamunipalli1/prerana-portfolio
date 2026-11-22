@@ -15,99 +15,177 @@ export function rng(seed = 1) {
 function canvas(w, h) { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; }
 function dot(g, x, y, r) { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
 
-/* ---------- The puzzle picture: "From data to decisions" landscape ---------- */
+/* ---------- The puzzle picture: a girl at her desk, thinking — six thoughts in her cloud ----------
+   Layout matches the puzzle: 3 columns × 3 bands. The bottom band is the girl (already assembled);
+   the top two bands hold the six thought bubbles, one per section, in this order:
+   top row: Story · Experience · Case Studies   middle row: Toolkit · Experiments · Connect */
+export const THOUGHTS = [
+  { label: "my story", color: "#C9D6BC", icon: "book" },
+  { label: "experience", color: "#E8B9A4", icon: "chart" },
+  { label: "case studies", color: "#EFD594", icon: "magnifier" },
+  { label: "toolkit", color: "#BCCDDD", icon: "tools" },
+  { label: "experiments", color: "#ECCBC7", icon: "flask" },
+  { label: "let's connect", color: "#B5C7AE", icon: "chat" },
+];
+
 export function drawPicture(imageEl) {
-  const W = 2048, H = 1366, c = canvas(W, H), g = c.getContext("2d"), r = rng(11);
-  if (imageEl) { // a real image supplied via content.js → cover-fit it
+  const W = 2048, H = 1536, c = canvas(W, H), g = c.getContext("2d"), r = rng(5);
+  if (imageEl) {
     const s = Math.max(W / imageEl.width, H / imageEl.height);
     g.drawImage(imageEl, (W - imageEl.width * s) / 2, (H - imageEl.height * s) / 2, imageEl.width * s, imageEl.height * s);
     return c;
   }
-  // sky
-  let gr = g.createLinearGradient(0, 0, 0, H * 0.62);
-  gr.addColorStop(0, "#EBD9BD"); gr.addColorStop(1, "#F8EFDF");
+  const bw = W / 3, bh = H / 3;
+  const ink = (lw = 8) => { g.strokeStyle = P.ink; g.lineWidth = lw; g.lineCap = "round"; g.lineJoin = "round"; };
+  const circ = (x, y, rr) => { g.beginPath(); g.arc(x, y, rr, 0, Math.PI * 2); };
+
+  // background: warm sky with a few loose dots
+  const gr = g.createLinearGradient(0, 0, 0, H);
+  gr.addColorStop(0, "#EAD9BD"); gr.addColorStop(0.65, "#F4E9D6"); gr.addColorStop(1, "#EFE2CC");
   g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  g.fillStyle = "rgba(46,38,33,.25)";
+  for (let i = 0; i < 60; i++) { circ(r() * W, r() * H * 0.68, 2 + r() * 4); g.fill(); }
 
-  // sun + halo rings
-  g.fillStyle = "rgba(217,169,62,.22)"; dot(g, W * 0.8, H * 0.22, 210);
-  g.fillStyle = "rgba(217,169,62,.35)"; dot(g, W * 0.8, H * 0.22, 150);
-  g.fillStyle = P.terracotta; dot(g, W * 0.8, H * 0.22, 96);
+  // the thought cloud (outline first, then fill on top so only the outer edge shows)
+  const cx = W / 2, cy = 520, rx = 955, ry = 470, bumps = [];
+  for (let i = 0; i < 30; i++) { const a = (i / 30) * Math.PI * 2; bumps.push([cx + Math.cos(a) * rx, cy + Math.sin(a) * ry, 105 + r() * 50]); }
+  ink(14); bumps.forEach(([x, y, rr]) => { circ(x, y, rr); g.stroke(); });
+  g.fillStyle = "#FFFBF2";
+  bumps.forEach(([x, y, rr]) => { circ(x, y, rr); g.fill(); });
+  g.beginPath(); g.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); g.fill();
 
-  // clouds
-  const cloud = (x, y, s) => { g.fillStyle = "rgba(251,247,239,.95)"; [[0, 0, 50], [45, -22, 42], [90, 0, 46], [45, 10, 50]].forEach(([dx, dy, rr]) => dot(g, x + dx * s, y + dy * s, rr * s)); };
-  cloud(W * 0.6, H * 0.12, 1.1); cloud(W * 0.3, H * 0.3, 0.9); cloud(W * 0.9, H * 0.38, 0.7);
+  // trail of little thought bubbles from her head up into the cloud
+  [[1100, 1085, 22], [1140, 1035, 32], [1185, 975, 44]].forEach(([x, y, rr]) => { g.fillStyle = "#FFFBF2"; circ(x, y, rr); g.fill(); ink(7); g.stroke(); });
 
-  // constellation: the dots, connected
-  const stars = [[0.06, 0.1], [0.14, 0.24], [0.25, 0.13], [0.34, 0.25], [0.45, 0.1], [0.53, 0.22]].map(([x, y]) => [x * W, y * H]);
-  g.setLineDash([14, 16]); g.lineWidth = 5; g.strokeStyle = "rgba(46,38,33,.5)"; g.lineCap = "round";
-  g.beginPath(); stars.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.stroke(); g.setLineDash([]);
-  stars.forEach(([x, y], i) => {
-    g.fillStyle = [P.mustard, P.pink, P.blue, P.sage, P.terracotta, P.mustard][i]; dot(g, x, y, 20);
-    g.lineWidth = 5; g.strokeStyle = P.ink; g.beginPath(); g.arc(x, y, 20, 0, Math.PI * 2); g.stroke();
+  // centres of the six thoughts
+  const centers = THOUGHTS.map((_, i) => [bw * (i % 3 + 0.5), bh * (Math.floor(i / 3) + 0.5) + (i < 3 ? 25 : -20)]);
+
+  // connect the dots between thoughts
+  g.setLineDash([16, 18]); ink(6); g.strokeStyle = "rgba(46,38,33,.45)";
+  g.beginPath(); [0, 1, 2, 5, 4, 3, 0].forEach((k, i) => (i ? g.lineTo(...centers[k]) : g.moveTo(...centers[k]))); g.stroke();
+  g.beginPath(); g.moveTo(...centers[1]); g.lineTo(...centers[4]); g.stroke();
+  g.setLineDash([]);
+
+  // each thought bubble
+  THOUGHTS.forEach((t, i) => {
+    const [x, y] = centers[i], R = 200;
+    g.fillStyle = t.color; circ(x, y, R); g.fill(); ink(9); g.stroke();
+    g.fillStyle = "rgba(255,255,255,.35)"; circ(x - 70, y - 80, 46); g.fill(); // highlight
+    drawIcon(g, t.icon, x, y - 30, 1.15);
+    g.fillStyle = P.ink; g.font = "600 70px Caveat, cursive"; g.textAlign = "center"; g.textBaseline = "alphabetic";
+    g.fillText(t.label, x, y + 135);
   });
-  // a few loose stars
-  g.fillStyle = "rgba(46,38,33,.35)";
-  for (let i = 0; i < 26; i++) dot(g, r() * W * 0.62, r() * H * 0.34, 3 + r() * 3);
 
-  // birds
-  g.strokeStyle = P.ink; g.lineWidth = 5;
-  [[0.66, 0.33], [0.7, 0.3], [0.68, 0.38]].forEach(([x, y]) => { x *= W; y *= H; g.beginPath(); g.moveTo(x - 22, y - 8); g.quadraticCurveTo(x - 10, y - 14, x, y); g.quadraticCurveTo(x + 10, y - 14, x + 22, y - 8); g.stroke(); });
+  // ---- bottom band: the girl at her desk ----
+  const deskY = 1405;
+  // desk
+  g.fillStyle = "#C79B6E"; g.fillRect(0, deskY, W, H - deskY); ink(8); g.beginPath(); g.moveTo(0, deskY); g.lineTo(W, deskY); g.stroke();
+  g.strokeStyle = "rgba(90,58,30,.25)"; g.lineWidth = 4;
+  for (let k = 0; k < 4; k++) { g.beginPath(); g.moveTo(0, deskY + 30 + k * 30); g.bezierCurveTo(600, deskY + 20 + k * 30, 1400, deskY + 45 + k * 30, W, deskY + 30 + k * 30); g.stroke(); }
 
-  // hills (back → front)
-  const hill = (base, amp, color, phase, freq = 2.2) => {
-    g.fillStyle = color; g.beginPath(); g.moveTo(0, H);
-    for (let x = 0; x <= W; x += 16) g.lineTo(x, base + Math.sin(x / W * Math.PI * freq + phase) * amp + Math.sin(x / W * 9 + phase * 2) * amp * 0.18);
-    g.lineTo(W, H); g.closePath(); g.fill();
-    g.strokeStyle = "rgba(46,38,33,.55)"; g.lineWidth = 4; g.stroke();
-  };
-  hill(H * 0.47, 40, "#A9BBCB", 0.6, 1.6);
-  hill(H * 0.55, 55, P.blue, 2.1, 2.0);
-  hill(H * 0.63, 50, P.sage, 0.2, 2.4);
-
-  // mustard fields with furrows
-  g.save();
-  g.beginPath(); g.moveTo(0, H);
-  for (let x = 0; x <= W; x += 16) g.lineTo(x, H * 0.72 + Math.sin(x / W * Math.PI * 1.4 + 1) * 45);
-  g.lineTo(W, H); g.closePath(); g.fillStyle = P.mustard; g.fill(); g.strokeStyle = "rgba(46,38,33,.55)"; g.lineWidth = 4; g.stroke();
-  g.clip(); g.strokeStyle = "rgba(46,38,33,.16)"; g.lineWidth = 6;
-  for (let i = -20; i < 40; i++) { g.beginPath(); g.moveTo(i * 90, H); g.lineTo(i * 90 + 500, H * 0.65); g.stroke(); }
+  const gx = 1024; // girl centre
+  const skin = "#B97F5B", hair = "#33241C";
+  // hair (back)
+  g.fillStyle = hair; g.beginPath();
+  g.moveTo(gx - 150, 1430); g.bezierCurveTo(gx - 210, 1300, gx - 170, 1090, gx, 1075); g.bezierCurveTo(gx + 170, 1090, gx + 210, 1300, gx + 150, 1430); g.closePath(); g.fill(); ink(8); g.stroke();
+  // body / sweater
+  g.fillStyle = P.sage; g.beginPath();
+  g.moveTo(gx - 260, H + 10); g.bezierCurveTo(gx - 250, 1430, gx - 160, 1365, gx - 40, 1350); g.lineTo(gx + 40, 1350);
+  g.bezierCurveTo(gx + 160, 1365, gx + 250, 1430, gx + 260, H + 10); g.closePath(); g.fill(); ink(8); g.stroke();
+  // neck
+  g.fillStyle = skin; g.beginPath(); g.moveTo(gx - 32, 1290); g.lineTo(gx - 34, 1362); g.quadraticCurveTo(gx, 1385, gx + 34, 1362); g.lineTo(gx + 32, 1290); g.closePath(); g.fill(); ink(7); g.stroke();
+  // collar
+  g.strokeStyle = P.sageDeep; g.lineWidth = 10; g.beginPath(); g.moveTo(gx - 50, 1352); g.quadraticCurveTo(gx, 1395, gx + 50, 1352); g.stroke();
+  // head (tilted up a little)
+  g.save(); g.translate(gx, 1205); g.rotate(-0.08);
+  g.fillStyle = skin; g.beginPath(); g.ellipse(0, 0, 92, 108, 0, 0, Math.PI * 2); g.fill(); ink(8); g.stroke();
+  // ears + earrings
+  g.fillStyle = skin; [-92, 92].forEach((ex) => { g.beginPath(); g.ellipse(ex, 10, 14, 22, 0, 0, Math.PI * 2); g.fill(); ink(6); g.stroke(); });
+  g.fillStyle = P.mustard; [-94, 94].forEach((ex) => { circ(ex, 40, 8); g.fill(); });
+  // fringe
+  g.fillStyle = hair; g.beginPath(); g.moveTo(-98, -10); g.bezierCurveTo(-110, -120, 60, -150, 100, -40); g.bezierCurveTo(60, -80, 0, -70, -30, -50); g.bezierCurveTo(-60, -40, -80, -20, -98, -10); g.closePath(); g.fill(); ink(7); g.stroke();
+  // face: eyes looking up, brows, smile, blush
+  g.fillStyle = P.ink; [[-36, 10], [36, 10]].forEach(([ex, ey]) => { g.beginPath(); g.ellipse(ex, ey, 9, 11, 0, 0, Math.PI * 2); g.fill(); g.fillStyle = "#fff"; circ(ex + 2, ey - 5, 3); g.fill(); g.fillStyle = P.ink; });
+  ink(5); [[-36, -18], [36, -18]].forEach(([ex, ey]) => { g.beginPath(); g.moveTo(ex - 16, ey + 2); g.quadraticCurveTo(ex, ey - 8, ex + 16, ey); g.stroke(); });
+  g.beginPath(); g.moveTo(-4, 22); g.quadraticCurveTo(-10, 40, 2, 44); g.stroke(); // nose
+  ink(6); g.beginPath(); g.moveTo(-22, 64); g.quadraticCurveTo(0, 82, 24, 62); g.stroke(); // smile
+  g.fillStyle = "rgba(217,120,110,.45)"; circ(-56, 46, 15); g.fill(); circ(56, 46, 15); g.fill();
   g.restore();
+  // arm resting on the desk, hand under the chin
+  g.fillStyle = P.sage; g.beginPath(); g.moveTo(gx + 240, deskY + 20); g.bezierCurveTo(gx + 200, 1380, gx + 120, 1330, gx + 60, 1325);
+  g.lineTo(gx + 40, 1372); g.bezierCurveTo(gx + 100, 1385, gx + 150, 1410, gx + 170, deskY + 30); g.closePath(); g.fill(); ink(8); g.stroke();
+  g.fillStyle = skin; g.beginPath(); g.ellipse(gx + 40, 1318, 42, 30, -0.4, 0, Math.PI * 2); g.fill(); ink(7); g.stroke();
 
-  // foreground
-  hill(H * 0.86, 35, P.sageDeep, 3.0, 1.2);
+  // desk props: mug with steam, books, laptop, plant, pencil
+  const mug = (x, y) => { g.fillStyle = P.terracotta; g.beginPath(); g.roundRect(x - 55, y - 120, 110, 120, 14); g.fill(); ink(7); g.stroke(); g.beginPath(); g.arc(x + 62, y - 62, 26, -1.3, 1.3); ink(9); g.stroke(); ink(5); [-25, 0, 25].forEach((d) => { g.beginPath(); g.moveTo(x + d, y - 140); g.bezierCurveTo(x + d - 15, y - 165, x + d + 15, y - 185, x + d, y - 210); g.stroke(); }); };
+  mug(690, deskY + 15);
+  [[380, P.blue, 300, 54], [395, P.pink, 270, 48], [370, P.mustard, 290, 50]].reduce((y, [x, col, w, h]) => { g.fillStyle = col; g.fillRect(x - w / 2, y - h, w, h); ink(7); g.strokeRect(x - w / 2, y - h, w, h); g.fillStyle = P.paper; g.fillRect(x + w / 2 - 30, y - h + 8, 22, h - 16); return y - h; }, deskY + 20);
+  // laptop
+  g.fillStyle = "#8E9AA5"; g.beginPath(); g.moveTo(1380, deskY + 20); g.lineTo(1430, 1215); g.lineTo(1700, 1215); g.lineTo(1680, deskY + 20); g.closePath(); g.fill(); ink(8); g.stroke();
+  g.fillStyle = P.paper; g.beginPath(); g.moveTo(1415, deskY - 10); g.lineTo(1455, 1240); g.lineTo(1675, 1240); g.lineTo(1655, deskY - 10); g.closePath(); g.fill();
+  ink(6); g.beginPath(); g.moveTo(1480, 1350); g.lineTo(1530, 1310); g.lineTo(1570, 1330); g.lineTo(1625, 1270); g.stroke();
+  g.fillStyle = "#6F7B86"; g.fillRect(1340, deskY + 12, 380, 22); ink(6); g.strokeRect(1340, deskY + 12, 380, 22);
+  // plant
+  g.fillStyle = P.terracotta; g.beginPath(); g.moveTo(1830, deskY + 15); g.lineTo(1810, 1310); g.lineTo(1940, 1310); g.lineTo(1920, deskY + 15); g.closePath(); g.fill(); ink(7); g.stroke();
+  g.fillStyle = P.sageDeep; [[-50, -60, -0.6], [0, -80, 0], [50, -60, 0.6], [-25, -110, -0.3], [28, -112, 0.3]].forEach(([dx, dy, a]) => { g.save(); g.translate(1875 + dx, 1300 + dy); g.rotate(a); g.beginPath(); g.ellipse(0, 0, 22, 50, 0, 0, Math.PI * 2); g.fill(); ink(5); g.stroke(); g.restore(); });
+  // pencil
+  g.save(); g.translate(560, deskY + 80); g.rotate(-0.15); g.fillStyle = P.mustard; g.fillRect(-90, -10, 170, 20); ink(5); g.strokeRect(-90, -10, 170, 20); g.fillStyle = "#E8CFA8"; g.beginPath(); g.moveTo(80, -10); g.lineTo(115, 0); g.lineTo(80, 10); g.closePath(); g.fill(); g.stroke(); g.restore();
+  return c;
+}
 
-  // trees
-  const tree = (x, y, s, col) => { g.strokeStyle = P.ink; g.lineWidth = 6; g.beginPath(); g.moveTo(x, y); g.lineTo(x, y - 60 * s); g.stroke(); g.fillStyle = col; dot(g, x, y - 80 * s, 34 * s); g.lineWidth = 4; g.beginPath(); g.arc(x, y - 80 * s, 34 * s, 0, Math.PI * 2); g.stroke(); };
-  [[0.2, 0.63, 1, P.sageDeep], [0.24, 0.645, 0.8, P.pink], [0.43, 0.6, 1.1, P.sageDeep], [0.58, 0.66, 0.9, P.terracotta], [0.62, 0.655, 1.2, P.sageDeep], [0.92, 0.63, 1, P.pink]]
-    .forEach(([x, y, s, col]) => tree(x * W, y * H, s, col));
+// big doodle icons for the thought bubbles (drawn around x, y)
+function drawIcon(g, kind, x, y, s = 1) {
+  g.save(); g.translate(x, y); g.scale(s, s);
+  g.strokeStyle = P.ink; g.lineWidth = 8; g.lineCap = "round"; g.lineJoin = "round";
+  const fill = (col) => { g.fillStyle = col; g.fill(); g.stroke(); };
+  if (kind === "book") {
+    g.beginPath(); g.moveTo(0, -40); g.quadraticCurveTo(-40, -62, -90, -50); g.lineTo(-90, 50); g.quadraticCurveTo(-40, 38, 0, 60); g.closePath(); fill(P.paper);
+    g.beginPath(); g.moveTo(0, -40); g.quadraticCurveTo(40, -62, 90, -50); g.lineTo(90, 50); g.quadraticCurveTo(40, 38, 0, 60); g.closePath(); fill(P.paper);
+    g.lineWidth = 5; [-20, 0, 20].forEach((d) => { g.beginPath(); g.moveTo(-72, d - 6); g.lineTo(-18, d); g.stroke(); });
+    g.fillStyle = P.terracotta; g.beginPath(); g.moveTo(45, 10); g.bezierCurveTo(10, -15, 25, -40, 45, -22); g.bezierCurveTo(65, -40, 80, -15, 45, 10); g.fill(); g.lineWidth = 4; g.stroke();
+  } else if (kind === "chart") {
+    g.beginPath(); g.moveTo(-90, -70); g.lineTo(-90, 60); g.lineTo(95, 60); g.stroke();
+    [[-65, 20, P.blue], [-25, -5, P.mustard], [15, -30, P.terracotta], [55, -60, P.sageDeep]].forEach(([bx, top, col]) => { g.beginPath(); g.rect(bx, top, 28, 60 - top); fill(col); });
+    g.setLineDash([8, 10]); g.beginPath(); g.moveTo(-70, 0); g.lineTo(-20, -25); g.lineTo(20, -48); g.lineTo(75, -85); g.stroke(); g.setLineDash([]);
+    g.beginPath(); g.moveTo(55, -88); g.lineTo(78, -88); g.lineTo(78, -66); g.stroke();
+  } else if (kind === "magnifier") {
+    // a puzzle piece under a magnifying glass
+    g.beginPath(); g.moveTo(-70, -30); g.lineTo(-30, -30); g.arc(-15, -38, 15, Math.PI * 0.8, Math.PI * 2.2); g.lineTo(10, -30); g.lineTo(10, 10); g.arc(18, 25, 15, -Math.PI * 0.7, Math.PI * 0.7); g.lineTo(10, 50); g.lineTo(-70, 50); g.closePath(); fill(P.pink);
+    g.beginPath(); g.arc(30, -5, 55, 0, Math.PI * 2); g.fillStyle = "rgba(255,255,255,.45)"; g.fill(); g.stroke();
+    g.lineWidth = 16; g.beginPath(); g.moveTo(70, 35); g.lineTo(105, 72); g.stroke();
+  } else if (kind === "tools") {
+    g.save(); g.rotate(-0.7); g.beginPath(); g.rect(-100, -16, 170, 32); fill(P.mustard); g.beginPath(); g.moveTo(70, -16); g.lineTo(110, 0); g.lineTo(70, 16); g.closePath(); fill("#E8CFA8"); g.beginPath(); g.rect(-115, -16, 18, 32); fill(P.pink); g.restore();
+    g.save(); g.rotate(0.7); g.beginPath(); g.rect(-105, -20, 210, 40); fill(P.paper); g.lineWidth = 5; for (let k = -90; k <= 90; k += 22) { g.beginPath(); g.moveTo(k, -20); g.lineTo(k, k % 44 === 0 ? 0 : -8); g.stroke(); } g.restore();
+  } else if (kind === "flask") {
+    g.beginPath(); g.moveTo(-25, -75); g.lineTo(-25, -20); g.lineTo(-75, 55); g.quadraticCurveTo(-80, 70, -62, 70); g.lineTo(42, 70); g.quadraticCurveTo(60, 70, 55, 55); g.lineTo(5, -20); g.lineTo(5, -75); g.closePath(); fill(P.paper);
+    g.beginPath(); g.moveTo(-55, 30); g.quadraticCurveTo(-30, 18, -10, 30); g.quadraticCurveTo(10, 42, 37, 30); g.lineTo(55, 55); g.quadraticCurveTo(60, 70, 42, 70); g.lineTo(-62, 70); g.quadraticCurveTo(-80, 70, -75, 55); g.closePath(); g.fillStyle = P.blue; g.fill(); g.stroke();
+    g.beginPath(); g.moveTo(-38, -75); g.lineTo(18, -75); g.stroke();
+    // light bulb beside it
+    g.beginPath(); g.arc(70, -40, 32, Math.PI * 0.8, Math.PI * 2.2); g.lineTo(84, 5); g.lineTo(56, 5); g.closePath(); fill(P.mustard); g.beginPath(); g.moveTo(58, 16); g.lineTo(82, 16); g.stroke();
+  } else if (kind === "chat") {
+    g.beginPath(); g.roundRect(-95, -70, 120, 80, 22); fill(P.paper); g.beginPath(); g.moveTo(-70, 8); g.lineTo(-82, 35); g.lineTo(-50, 10); g.stroke();
+    g.beginPath(); g.roundRect(-15, -20, 115, 78, 22); fill(P.pink); g.beginPath(); g.moveTo(75, 56); g.lineTo(88, 80); g.lineTo(55, 58); g.stroke();
+    g.fillStyle = P.ink; [-60, -35, -10].forEach((d) => { g.beginPath(); g.arc(d, -30, 6, 0, Math.PI * 2); g.fill(); });
+    g.fillStyle = P.terracotta; g.beginPath(); g.moveTo(42, 32); g.bezierCurveTo(15, 12, 28, -8, 42, 6); g.bezierCurveTo(56, -8, 69, 12, 42, 32); g.fill(); g.lineWidth = 4; g.stroke();
+  }
+  g.restore();
+}
 
-  // the winding path from "data" to "decisions"
-  const path = [[0.06, 1.02], [0.18, 0.86], [0.34, 0.9], [0.46, 0.76], [0.6, 0.78], [0.72, 0.62], [0.8, 0.53]].map(([x, y]) => [x * W, y * H]);
-  const trace = () => { g.beginPath(); g.moveTo(...path[0]); for (let i = 1; i < path.length - 1; i++) { const [x, y] = path[i], [nx, ny] = path[i + 1]; g.quadraticCurveTo(x, y, (x + nx) / 2, (y + ny) / 2); } g.lineTo(...path[path.length - 1]); };
-  g.lineCap = "round"; g.strokeStyle = "rgba(46,38,33,.65)"; g.lineWidth = 42; trace(); g.stroke();
-  g.strokeStyle = P.paper; g.lineWidth = 34; trace(); g.stroke();
-  g.setLineDash([18, 22]); g.strokeStyle = P.terracotta; g.lineWidth = 6; trace(); g.stroke(); g.setLineDash([]);
-
-  // data points along the path
-  [[0.16, 0.87, P.blue], [0.33, 0.895, P.pink], [0.47, 0.765, P.terracotta], [0.6, 0.775, P.blue]].forEach(([x, y, col]) => {
-    g.fillStyle = col; dot(g, x * W, y * H - 34, 20); g.strokeStyle = P.ink; g.lineWidth = 5; g.beginPath(); g.arc(x * W, y * H - 34, 20, 0, Math.PI * 2); g.stroke();
-  });
-
-  // the "decision": a little house with a flag on the hill
-  const hx = W * 0.8, hy = H * 0.53;
-  g.lineWidth = 6; g.strokeStyle = P.ink;
-  g.fillStyle = P.paper; g.fillRect(hx - 70, hy - 110, 140, 110); g.strokeRect(hx - 70, hy - 110, 140, 110);
-  g.fillStyle = P.terracotta; g.beginPath(); g.moveTo(hx - 92, hy - 104); g.lineTo(hx, hy - 186); g.lineTo(hx + 92, hy - 104); g.closePath(); g.fill(); g.stroke();
-  g.fillStyle = P.mustard; g.fillRect(hx - 20, hy - 60, 40, 60); g.strokeRect(hx - 20, hy - 60, 40, 60);
-  g.beginPath(); g.moveTo(hx + 40, hy - 150); g.lineTo(hx + 40, hy - 250); g.stroke();
-  g.fillStyle = P.pink; g.beginPath(); g.moveTo(hx + 40, hy - 250); g.lineTo(hx + 110, hy - 228); g.lineTo(hx + 40, hy - 206); g.closePath(); g.fill(); g.stroke();
-
-  // handwritten labels
-  g.fillStyle = P.ink; g.font = "500 92px Caveat, cursive";
-  g.fillText("data", W * 0.05, H * 0.95);
-  g.fillText("decisions", W * 0.83, H * 0.6);
-  g.font = "500 64px Caveat, cursive"; g.fillStyle = "rgba(46,38,33,.7)";
-  g.fillText("connect the dots →", W * 0.38, H * 0.33);
+export function drawResume() {
+  const W = 600, H = 780, c = canvas(W, H), g = c.getContext("2d");
+  g.fillStyle = "#FFFFFF"; g.fillRect(0, 0, W, H);
+  g.fillStyle = P.sage; g.fillRect(0, 0, W, 16);
+  g.fillStyle = P.ink; g.font = "400 46px Fraunces, serif"; g.fillText("Prerana Munipalli", 50, 92);
+  g.font = "500 20px 'DM Sans', sans-serif"; g.fillStyle = P.inkSoft; g.fillText("STRATEGY · ANALYTICS · AI", 52, 128);
+  g.fillStyle = P.terracotta; g.fillRect(50, 150, 500, 4);
+  const sec = (y, title, lines) => {
+    g.fillStyle = P.terracotta; g.font = "700 18px 'DM Sans', sans-serif"; g.fillText(title, 50, y);
+    g.fillStyle = "rgba(46,38,33,.22)"; lines.forEach((w, i) => g.fillRect(50, y + 22 + i * 26, w, 10));
+  };
+  sec(200, "EXPERIENCE", [470, 420, 450, 380, 300, 460, 410]);
+  sec(430, "EDUCATION", [430, 360, 400]);
+  sec(560, "SKILLS", [480, 440, 360]);
+  g.fillStyle = P.ink; g.font = "600 34px Caveat, cursive"; g.fillText("resume.pdf", 50, 735);
   return c;
 }
 
@@ -195,7 +273,7 @@ export function drawBoxLid(picture) {
   g.fillStyle = P.ink; g.fillRect(0, 0, W, H);
   g.drawImage(picture, 40, 40, W - 80, H - 200);
   g.fillStyle = P.paper; g.fillRect(40, H - 150, W - 80, 110);
-  g.fillStyle = P.ink; g.font = "400 50px Fraunces, serif"; g.fillText("Data → Decisions", 70, H - 82);
+  g.fillStyle = P.ink; g.font = "400 50px Fraunces, serif"; g.fillText("Connecting the Dots", 70, H - 82);
   g.font = "600 34px 'DM Sans', sans-serif"; g.fillStyle = P.terracotta; g.textAlign = "right"; g.fillText("1000 PIECES*", W - 70, H - 82);
   g.font = "500 30px Caveat, cursive"; g.fillStyle = P.inkSoft; g.fillText("*96, but who's counting", W - 70, H - 50);
   return c;
