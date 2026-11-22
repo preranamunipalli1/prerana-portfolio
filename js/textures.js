@@ -18,15 +18,15 @@ function dot(g, x, y, r) { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill
 /* ---------- The puzzle picture: a girl at her desk, thinking — six thoughts in her cloud ----------
    Layout matches the puzzle: 3 columns × 3 bands. The bottom band is the girl (already assembled);
    the top two bands hold the six thought bubbles, one per section, in this order:
-   top row: Story · Experience · Case Studies   middle row: Toolkit · Experiments · Connect */
+   top row: Story · Experience · Projects   middle row: Thoughts & Perspectives · Toolkit · Connect */
 export const THOUGHTS = [
   { label: "my story", color: "#C9D6BC", icon: "book" },
   { label: "experience", color: "#E8B9A4", icon: "chart" },
-  { label: "case studies", color: "#EFD594", icon: "magnifier" },
-  { label: "toolkit", color: "#BCCDDD", icon: "tools" },
-  { label: "experiments", color: "#ECCBC7", icon: "flask" },
+  { label: "projects", color: "#EFD594", icon: "flask" },
+  { label: "perspectives", color: "#BCCDDD", icon: "article" },
+  { label: "toolkit", color: "#ECCBC7", icon: "tools" },
   { label: "let's connect", color: "#B5C7AE", icon: "chat" },
-];
+]
 
 export function drawPicture(imageEl) {
   const W = 2048, H = 1536, c = canvas(W, H), g = c.getContext("2d"), r = rng(5);
@@ -162,6 +162,14 @@ function drawIcon(g, kind, x, y, s = 1) {
     g.beginPath(); g.moveTo(-38, -75); g.lineTo(18, -75); g.stroke();
     // light bulb beside it
     g.beginPath(); g.arc(70, -40, 32, Math.PI * 0.8, Math.PI * 2.2); g.lineTo(84, 5); g.lineTo(56, 5); g.closePath(); fill(P.mustard); g.beginPath(); g.moveTo(58, 16); g.lineTo(82, 16); g.stroke();
+  } else if (kind === "article") {
+    // a written page with a fountain pen
+    g.beginPath(); g.moveTo(-80, -75); g.lineTo(30, -75); g.lineTo(60, -45); g.lineTo(60, 75); g.lineTo(-80, 75); g.closePath(); fill(P.paper);
+    g.beginPath(); g.moveTo(30, -75); g.lineTo(30, -45); g.lineTo(60, -45); g.stroke();
+    g.fillStyle = P.terracotta; g.font = "700 64px Fraunces, serif"; g.textAlign = "left"; g.fillText("\u201C", -66, -14);
+    g.lineWidth = 6; [[-30, -40, 40], [-60, -12, 100], [-60, 14, 100], [-60, 40, 70]].forEach(([x, y, w]) => { g.beginPath(); g.moveTo(x, y); g.lineTo(x + w, y); g.stroke(); });
+    g.save(); g.translate(68, 10); g.rotate(0.55); g.lineWidth = 7;
+    g.beginPath(); g.rect(-14, -70, 28, 80); fill(P.blue); g.beginPath(); g.moveTo(-14, 10); g.lineTo(0, 48); g.lineTo(14, 10); g.closePath(); fill(P.mustard); g.restore();
   } else if (kind === "chat") {
     g.beginPath(); g.roundRect(-95, -70, 120, 80, 22); fill(P.paper); g.beginPath(); g.moveTo(-70, 8); g.lineTo(-82, 35); g.lineTo(-50, 10); g.stroke();
     g.beginPath(); g.roundRect(-15, -20, 115, 78, 22); fill(P.pink); g.beginPath(); g.moveTo(75, 56); g.lineTo(88, 80); g.lineTo(55, 58); g.stroke();

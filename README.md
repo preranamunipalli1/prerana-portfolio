@@ -8,7 +8,7 @@ Built with plain HTML/CSS/JS + Three.js (loaded from a CDN). No build step.
 
 ## Edit content
 Most text lives in **`js/content.js`**. Search for `[EDIT]` to find the placeholders.
-- **Sections**: `story`, `experience`, `cases`, `toolkit`, `experiments`, `connect`
+- **Sections**: `story`, `experience`, `projects` (personal projects), `thoughts` (articles, linked out), `toolkit`, `connect`
 - **Table objects / hobbies** (sticky-note clues): `hobbies`, `objectTeasers`
 - **Coffee mug card**: `coffee` (add a booking link in `calendar` if you like)
 - **Just the highlights** (one-page recruiter view): `highlights`

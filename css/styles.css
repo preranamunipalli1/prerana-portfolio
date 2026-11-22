@@ -219,6 +219,23 @@ body.night .nav-chip:hover { background: rgba(255,255,255,.08); }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip { padding: 3px 11px; border-radius: 999px; border: 1.3px solid var(--ink); background: var(--paper); font-size: 13px; }
 
+/* projects */
+.proj-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.proj-meta .status { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; }
+.proj-meta .status i { width: 9px; height: 9px; border-radius: 50%; background: var(--s); border: 1.2px solid var(--ink); }
+.proj-meta .kind { font-family: var(--hand); font-size: 19px; color: var(--ink-soft); }
+
+/* thoughts & perspectives */
+.articles { display: grid; gap: 14px; }
+.article { position: relative; display: grid; gap: 6px; text-decoration: none; padding: 20px 22px 18px 26px; background: var(--cream); border: 1.5px solid var(--ink); border-radius: var(--radius); overflow: hidden; transition: transform .3s var(--ease), box-shadow .3s; }
+.article::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 7px; background: var(--c); border-right: 1.5px solid var(--ink); }
+.article:hover { transform: translateY(-4px) rotate(-.3deg); box-shadow: var(--shadow); }
+.article-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-soft); }
+.article h3 { font-size: 26px; text-wrap: balance; }
+.article p { margin: 0; color: var(--ink-soft); max-width: 60ch; }
+.article-link { font-family: var(--hand); font-size: 21px; color: var(--c-deep, var(--ink)); }
+.hl-cases a { color: var(--terracotta); }
+
 /* toolkit */
 .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
 .filter { font-size: 14px; padding: 6px 14px; border-radius: 999px; border: 1.5px solid var(--ink); background: var(--cream); cursor: pointer; }

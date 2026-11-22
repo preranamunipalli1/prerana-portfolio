@@ -20,9 +20,9 @@ window.SITE = {
   pieces: [
     { id: "story",       num: "01", title: "My Story",            hint: "who I am & how I think",    color: "sage",       icon: "bulb" },
     { id: "experience",  num: "02", title: "My Experience",       hint: "DesignCafe → HCLTech",      color: "terracotta", icon: "chart" },
-    { id: "cases",       num: "03", title: "Case Studies",        hint: "problems I've solved",      color: "mustard",    icon: "magnifier" },
-    { id: "toolkit",     num: "04", title: "My Toolkit",          hint: "frameworks & tools",        color: "blue",       icon: "pencil" },
-    { id: "experiments", num: "05", title: "Experiments & Ideas", hint: "AI, ML & side builds",      color: "pink",       icon: "flask" },
+    { id: "projects",    num: "03", title: "Personal Projects",       hint: "things I've built",         color: "mustard",    icon: "flask" },
+    { id: "thoughts",    num: "04", title: "Thoughts & Perspectives", hint: "articles I've written",     color: "blue",       icon: "pencil" },
+    { id: "toolkit",     num: "05", title: "My Toolkit",              hint: "frameworks & tools",        color: "pink",       icon: "puzzle" },
     { id: "connect",     num: "06", title: "Let's Connect",       hint: "say hello",                 color: "sageDeep",   icon: "coffee" },
   ],
 
@@ -99,59 +99,72 @@ window.SITE = {
     ],
   },
 
-  /* ---------- 03 · CASE STUDIES ---------- */
-  cases: {
-    title: "Problems I've pieced together.",
-    intro: "Each case follows the same path: scattered pieces → a pattern → a decision.",
+  /* ---------- 03 · PERSONAL PROJECTS ----------
+     Practical projects. Each card opens a detail view.
+     status: Building | Prototype | Shipped | Exploring      links: [{ label, href }]  (GitHub, live demo…)
+     image: "assets/images/your-screenshot.png" (optional) */
+  projects: {
+    title: "Things I've built.",
+    intro: "Practical projects where I picked a real problem, pulled the data together, and built something that works.",
     items: [
       {
-        tag: "FP&A · DesignCafe",
-        title: "From spreadsheets to a single source of truth",
-        color: "terracotta",
-        image: "",
-        problem: "Leadership couldn't see budget vs. actuals without days of manual consolidation. [EDIT]",
-        pieces: ["ERP exports", "Salesforce pipeline", "Department budgets"],
-        pattern: "Most of the delay came from reconciling the same three sources by hand every month. [EDIT]",
-        decision: "Automated the pipeline and built a self-serve BvA dashboard. [EDIT]",
-        outcome: "Reporting time down XX%; monthly reviews moved from backward-looking to forward-looking. [EDIT]",
+        title: "Moxie", kind: "AI product", status: "Building", color: "terracotta", image: "",
+        summary: "A voice journal and habits app: speak about your day and get structure back. [EDIT]",
+        problem: "Journaling and habit tracking take effort, so most people stop after a week. [EDIT]",
+        approach: "A mobile-friendly web app where you talk instead of type, and AI turns it into entries and habit check-ins. [EDIT]",
+        outcome: "What you learned or what it does today. [EDIT]",
+        tools: ["Supabase", "Vercel", "Generative AI", "[EDIT]"],
+        links: [], // e.g. { label: "Try it", href: "https://…" }
       },
       {
-        tag: "Customer insight · DesignCafe",
-        title: "What customers were really telling us",
-        color: "mustard",
-        image: "",
-        problem: "Feedback scores dipped, but nobody knew why. [EDIT]",
-        pieces: ["Survey responses", "Project timelines", "Support tickets"],
-        pattern: "Dissatisfaction clustered around one stage of the delivery journey. [EDIT]",
-        decision: "Recommended process changes to the operations team. [EDIT]",
-        outcome: "Measurable change in [metric]. [EDIT]",
+        title: "AI Readiness Calculator", kind: "Strategy tool", status: "Prototype", color: "mustard", image: "",
+        summary: "Helps an organisation gauge how ready it is to adopt AI. [EDIT]",
+        problem: "Companies want to 'do AI' without knowing where they stand. [EDIT]",
+        approach: "A short assessment across data, people, process and tech, scored into a readiness level. [EDIT]",
+        outcome: "[EDIT]",
+        tools: ["[EDIT]"], links: [],
       },
       {
-        tag: "GenAI strategy · HCLTech",
-        title: "Finding where GenAI actually pays off",
-        color: "blue",
-        image: "",
-        problem: "A global bank wanted to know where GenAI would actually be worth the investment. [EDIT]",
-        pieces: ["Business unit pain points", "Tech capabilities", "Stakeholder priorities"],
-        pattern: "The highest-value opportunities sat where manual knowledge work met strict regulation. [EDIT]",
-        decision: "Prioritised use cases on a value-vs-feasibility matrix. [EDIT]",
-        outcome: "Shortlist of XX opportunities taken forward. [EDIT]",
+        title: "Spending Ledger", kind: "Personal finance", status: "Exploring", color: "sage", image: "",
+        summary: "Expense tracking with ML-based categorisation. [EDIT]",
+        problem: "Categorising expenses by hand is tedious and inconsistent. [EDIT]",
+        approach: "Train a model on past transactions to suggest categories automatically. [EDIT]",
+        outcome: "[EDIT]",
+        tools: ["Python", "scikit-learn", "[EDIT]"], links: [],
       },
       {
-        tag: "Academic · Duke Fuqua",
-        title: "Placeholder case study",
-        color: "pink",
-        image: "",
-        problem: "Describe the business question. [EDIT]",
-        pieces: ["Piece one", "Piece two", "Piece three"],
-        pattern: "What insight emerged? [EDIT]",
-        decision: "What did you recommend? [EDIT]",
-        outcome: "What changed? [EDIT]",
+        title: "OCR document reader", kind: "Computer vision", status: "Shipped", color: "blue", image: "",
+        summary: "Pulls structured data from images and scanned documents. [EDIT]",
+        problem: "Useful information is often trapped in scans and photos. [EDIT]",
+        approach: "Detect and read text regions, then turn them into structured fields. [EDIT]",
+        outcome: "[EDIT]",
+        tools: ["Python", "OCR", "YOLO", "[EDIT]"], links: [],
+      },
+      {
+        title: "Streaming habits analysis", kind: "Data analysis", status: "Shipped", color: "pink", image: "",
+        summary: "What Netflix and Spotify data says about viewing and listening habits. [EDIT]",
+        problem: "[EDIT]",
+        approach: "Cleaned and explored personal streaming exports to find patterns. [EDIT]",
+        outcome: "[EDIT]",
+        tools: ["Python", "pandas", "[EDIT]"], links: [],
       },
     ],
   },
 
-  /* ---------- 04 · TOOLKIT ---------- */
+  /* ---------- 04 · THOUGHTS & PERSPECTIVES ----------
+     Articles you've written. Each card links out to where it's published.
+     The three below are PLACEHOLDERS — replace with your real articles. [EDIT] */
+  thoughts: {
+    title: "Thoughts & perspectives.",
+    intro: "Writing is how I think things through. A few pieces on strategy, data and AI.",
+    items: [
+      { title: "Article title [EDIT]", date: "Month 20XX", platform: "LinkedIn", read: "4 min read", tag: "Generative AI", summary: "One or two sentences on what the piece argues. [EDIT]", href: "https://www.linkedin.com/" },
+      { title: "Article title [EDIT]", date: "Month 20XX", platform: "Medium", read: "6 min read", tag: "Strategy", summary: "One or two sentences on what the piece argues. [EDIT]", href: "https://medium.com/" },
+      { title: "Article title [EDIT]", date: "Month 20XX", platform: "LinkedIn", read: "3 min read", tag: "Analytics", summary: "One or two sentences on what the piece argues. [EDIT]", href: "https://www.linkedin.com/" },
+    ],
+  },
+
+  /* ---------- 05 · TOOLKIT ---------- */
   toolkit: {
     title: "The pieces I reach for.",
     intro: "Hover or tap a piece to see when I use it. [EDIT: confirm every tool listed here]",
@@ -203,20 +216,6 @@ window.SITE = {
           { name: "Implementation planning", use: "From recommendation to roadmap" },
         ],
       },
-    ],
-  },
-
-  /* ---------- 05 · EXPERIMENTS ---------- */
-  experiments: {
-    title: "Things I'm tinkering with.",
-    intro: "A lab notebook of side projects, half-finished ideas, and things I'm learning by building.",
-    items: [
-      { title: "Moxie", status: "Building", kind: "AI product", text: "A voice journal & habits app — speak your day, get structure back. [EDIT]", link: "" },
-      { title: "AI Readiness Calculator", status: "Prototype", kind: "Strategy tool", text: "Helps an organisation gauge how ready it is to adopt AI. [EDIT]", link: "" },
-      { title: "Spending Ledger", status: "Exploring", kind: "Personal finance", text: "Expense tracking with ML-based categorisation. [EDIT]", link: "" },
-      { title: "OCR document reader", status: "Shipped", kind: "Computer vision", text: "Pulling structured data from images and scanned documents. [EDIT]", link: "" },
-      { title: "Streaming habits analysis", status: "Shipped", kind: "Data analysis", text: "What Netflix & Spotify data says about viewing and listening habits. [EDIT]", link: "" },
-      { title: "Next idea", status: "Idea", kind: "???", text: "Always a new puzzle on the table. [EDIT]", link: "" },
     ],
   },
 

@@ -60,9 +60,19 @@ const R = {
         <div class="projects">${ch.projects.map((p) => `<details class="proj"><summary>${esc(p.title)}<span class="plus">+</span></summary><p>${esc(p.text)}</p></details>`).join("")}</div>
       </section>`).join("")}</div>`;
   },
-  cases() {
-    const d = S.cases;
-    return head("cases", d.title, d.intro) + `<div class="case-area">${caseGrid()}</div>`;
+  projects() {
+    const d = S.projects;
+    return head("projects", d.title, d.intro) + `<div class="project-area">${projectGrid()}</div>`;
+  },
+  thoughts() {
+    const d = S.thoughts;
+    return head("thoughts", d.title, d.intro) + `<div class="articles">${d.items.map((a, i) => `
+      <a class="article" href="${esc(a.href)}" target="_blank" rel="noopener" style="--c:${C(["blue", "mustard", "sage", "pink", "terracotta"][i % 5])}">
+        <div class="article-meta"><span class="tag">${esc(a.tag)}</span><span>${esc(a.date)}</span><span aria-hidden="true">·</span><span>${esc(a.read)}</span></div>
+        <h3>${esc(a.title)}</h3>
+        <p>${esc(a.summary)}</p>
+        <span class="article-link">Read on ${esc(a.platform)} <span aria-hidden="true">↗</span></span>
+      </a>`).join("")}</div>`;
   },
   toolkit() {
     const d = S.toolkit;
@@ -70,14 +80,6 @@ const R = {
       <div class="filters"><button class="filter on" data-filter="all">All</button>${d.groups.map((g, i) => `<button class="filter" data-filter="${i}">${esc(g.name)}</button>`).join("")}</div>
       <aside class="tk-note" aria-live="polite"><div class="k">How I use it</div><h4>Pick a piece</h4><p>hover or tap any tool to see where it fits</p></aside>
       ${d.groups.map((g, i) => `<div class="tk-group" data-group="${i}" style="--c:${C(g.color)}"><h3>${esc(g.name)}</h3><div class="tk-items">${g.items.map((t, j) => `<button class="tk" data-g="${i}" data-t="${j}">${esc(t.name)}</button>`).join("")}</div></div>`).join("")}`;
-  },
-  experiments() {
-    const d = S.experiments, sc = { Building: "terracotta", Prototype: "mustard", Exploring: "blue", Shipped: "sage", Idea: "pink" };
-    return head("experiments", d.title, d.intro) + `<div class="lab">${d.items.map((x, i) => {
-      const tag = x.link ? "a" : "article";
-      return `<${tag} class="exp" ${x.link ? `href="${esc(x.link)}" target="_blank" rel="noopener"` : ""} style="--c:${C(sc[x.status] || "sage")};--r:${[-1, 0.8, -0.5, 1.1, -0.9, 0.6][i % 6]}deg">
-        <span class="status"><i></i>${esc(x.status)}</span><h3>${esc(x.title)}</h3><span class="kind">${esc(x.kind)}</span><p>${esc(x.text)}</p></${tag}>`;
-    }).join("")}</div>`;
   },
   connect() {
     const d = S.connect;
@@ -93,26 +95,31 @@ function linkCards() {
     </a>`).join("")}</div>`;
 }
 
-function caseGrid() {
-  return `<div class="case-grid">${S.cases.items.map((c, i) => `
-    <button class="case" data-case="${i}" style="--c:${C(c.color)}">
-      <div class="case-visual">${c.image ? `<img src="${esc(c.image)}" alt="">` : dotsArt(i)}</div>
-      <div class="case-body"><span class="tag">${esc(c.tag)}</span><h3>${esc(c.title)}</h3><p>${esc(c.problem)}</p><div class="open">see how the pieces fit →</div></div>
+const STATUS_COLOR = { Building: "terracotta", Prototype: "mustard", Exploring: "blue", Shipped: "sage" };
+function projectGrid() {
+  return `<div class="case-grid">${S.projects.items.map((x, i) => `
+    <button class="case" data-project="${i}" style="--c:${C(x.color)}">
+      <div class="case-visual">${x.image ? `<img src="${esc(x.image)}" alt="">` : dotsArt(i)}</div>
+      <div class="case-body">
+        <div class="proj-meta"><span class="status" style="--s:${C(STATUS_COLOR[x.status] || "sage")}"><i></i>${esc(x.status)}</span><span class="kind">${esc(x.kind)}</span></div>
+        <h3>${esc(x.title)}</h3><p>${esc(x.summary)}</p><div class="open">see how it came together →</div>
+      </div>
     </button>`).join("")}</div>`;
 }
-function caseDetail(i) {
-  const c = S.cases.items[i];
-  return `<button class="back-link" data-back>← all case studies</button>
-    <div class="case-detail" style="--c:${C(c.color)};--c-deep:${DEEP[c.color]}">
-      <span class="tag">${esc(c.tag)}</span><h3>${esc(c.title)}</h3>
-      <div class="shot">${c.image ? `<img src="${esc(c.image)}" alt="">` : `<span class="hand">screenshot / visual goes here<br><small>set <code>image</code> in content.js</small></span>`}</div>
+function projectDetail(i) {
+  const x = S.projects.items[i];
+  return `<button class="back-link" data-back>← all projects</button>
+    <div class="case-detail" style="--c:${C(x.color)};--c-deep:${DEEP[x.color]}">
+      <div class="proj-meta"><span class="status" style="--s:${C(STATUS_COLOR[x.status] || "sage")}"><i></i>${esc(x.status)}</span><span class="kind">${esc(x.kind)}</span></div>
+      <h3>${esc(x.title)}</h3>
+      <div class="shot">${x.image ? `<img src="${esc(x.image)}" alt="Screenshot of ${esc(x.title)}">` : `<span class="hand">screenshot goes here<br><small>set <code>image</code> in content.js</small></span>`}</div>
       <div class="chain">
-        <div class="chain-step"><span class="k">The problem</span><p>${esc(c.problem)}</p></div>
-        <div class="chain-step"><span class="k">The pieces</span><div class="chips">${c.pieces.map((x) => `<span class="chip">${esc(x)}</span>`).join("")}</div></div>
-        <div class="chain-step"><span class="k">The pattern</span><p>${esc(c.pattern)}</p></div>
-        <div class="chain-step"><span class="k">The decision</span><p>${esc(c.decision)}</p></div>
-        <div class="chain-step"><span class="k">The outcome</span><p>${esc(c.outcome)}</p></div>
+        <div class="chain-step"><span class="k">The problem</span><p>${esc(x.problem)}</p></div>
+        <div class="chain-step"><span class="k">What I built</span><p>${esc(x.approach)}</p></div>
+        <div class="chain-step"><span class="k">Built with</span><div class="chips">${x.tools.map((t) => `<span class="chip">${esc(t)}</span>`).join("")}</div></div>
+        <div class="chain-step"><span class="k">What I learned</span><p>${esc(x.outcome)}</p></div>
       </div>
+      ${x.links && x.links.length ? `<div class="card-actions">${x.links.map((l) => `<a class="btn" href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join("")}</div>` : ""}
     </div>`;
 }
 function dotsArt(seed) {
@@ -126,12 +133,12 @@ function dotsArt(seed) {
 export function renderSection(id) { return R[id] ? R[id]() + next(id) : ""; }
 
 export function wireSection(id, root) {
-  if (id === "cases") {
-    const area = root.querySelector(".case-area");
+  if (id === "projects") {
+    const area = root.querySelector(".project-area");
     const bind = () => {
-      area.querySelectorAll(".case").forEach((b) => b.addEventListener("click", () => { area.innerHTML = caseDetail(+b.dataset.case); root.scrollTop = 0; bind(); }));
+      area.querySelectorAll(".case").forEach((b) => b.addEventListener("click", () => { area.innerHTML = projectDetail(+b.dataset.project); root.scrollTop = 0; bind(); }));
       const back = area.querySelector("[data-back]");
-      back && back.addEventListener("click", () => { area.innerHTML = caseGrid(); bind(); });
+      back && back.addEventListener("click", () => { area.innerHTML = projectGrid(); bind(); });
     };
     bind();
   }
@@ -176,8 +183,10 @@ export function renderHighlights() {
             <ul>${c.projects.slice(0, 4).map((p) => `<li>${esc(p.title)}</li>`).join("")}</ul>
             <div class="hl-metrics">${c.metrics.map((m) => `<span><b>${esc(m.value)}</b> ${esc(m.label)}</span>`).join("")}</div>
           </div>`).join("")}
-        <h2>Selected work</h2>
-        <ul class="hl-cases">${S.cases.items.map((c) => `<li><b>${esc(c.title)}</b> — ${esc(c.outcome)}</li>`).join("")}</ul>
+        <h2>Personal projects</h2>
+        <ul class="hl-cases">${S.projects.items.map((x) => `<li><b>${esc(x.title)}</b> (${esc(x.kind)}): ${esc(x.summary)}</li>`).join("")}</ul>
+        <h2>Writing</h2>
+        <ul class="hl-cases">${S.thoughts.items.map((a) => `<li><a href="${esc(a.href)}" target="_blank" rel="noopener">${esc(a.title)}</a>, ${esc(a.platform)}, ${esc(a.date)}</li>`).join("")}</ul>
       </section>
       <aside>
         <h2>Education</h2>
