@@ -199,7 +199,7 @@ export async function createScene(canvas, opts) {
   // coffee mug (+ steam)
   const mug = prop("coffee", 8.9, 3.0);
   part(new THREE.CylinderGeometry(0.78, 0.7, 1.55, 36), mat(TX.P.terracotta), mug, [0, 0.775, 0]);
-  const coffee = new THREE.Mesh(new THREE.CircleGeometry(0.66, 36), mat("#5A3A24"));
+  const coffee = new THREE.Mesh(new THREE.CircleGeometry(0.66, 36), new THREE.MeshLambertMaterial({ map: canvasTex(TX.drawLatte()) }));
   coffee.rotation.x = -Math.PI / 2; coffee.position.y = 1.56; mug.add(coffee);
   part(new THREE.TorusGeometry(0.42, 0.11, 12, 28, Math.PI), mat(TX.P.terracotta), mug, [0.74, 0.8, 0], [0, 0, -Math.PI / 2]);
   part(new THREE.CylinderGeometry(0.8, 0.8, 0.12, 36), mat(TX.P.paper), mug, [0, 0.95, 0], [0, 0, 0], false); // stripe

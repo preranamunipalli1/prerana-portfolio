@@ -279,6 +279,25 @@ export function drawBoxLid(picture) {
   return c;
 }
 
+// latte art on the coffee: a cream heart with "hi" in it, so people know to hover the mug
+export function drawLatte() {
+  const W = 512, c = canvas(W, W), g = c.getContext("2d");
+  const gr = g.createRadialGradient(W / 2, W / 2, 40, W / 2, W / 2, W / 2);
+  gr.addColorStop(0, "#9A6A43"); gr.addColorStop(0.7, "#7A4F2F"); gr.addColorStop(1, "#4E321F");
+  g.fillStyle = gr; g.fillRect(0, 0, W, W);
+  // crema heart
+  g.fillStyle = "#F3E3C9"; g.strokeStyle = "rgba(122,79,47,.5)"; g.lineWidth = 6;
+  g.beginPath(); g.moveTo(256, 420);
+  g.bezierCurveTo(90, 320, 70, 170, 170, 130); g.bezierCurveTo(220, 112, 250, 140, 256, 170);
+  g.bezierCurveTo(262, 140, 292, 112, 342, 130); g.bezierCurveTo(442, 170, 422, 320, 256, 420); g.closePath(); g.fill(); g.stroke();
+  // little swirl lines in the foam
+  g.strokeStyle = "rgba(154,106,67,.35)"; g.lineWidth = 5;
+  [[256, 300, 120], [256, 300, 80]].forEach(([x, y, r]) => { g.beginPath(); g.arc(x, y - 20, r, Math.PI * 1.1, Math.PI * 1.9); g.stroke(); });
+  g.fillStyle = "#4E2E1A"; g.font = "700 200px Caveat, cursive"; g.textAlign = "center"; g.textBaseline = "middle";
+  g.fillText("hi", 256, 262);
+  return c;
+}
+
 export function drawGlow(color) {
   const W = 256, c = canvas(W, W), g = c.getContext("2d");
   const gr = g.createRadialGradient(W / 2, W / 2, 0, W / 2, W / 2, W / 2);
